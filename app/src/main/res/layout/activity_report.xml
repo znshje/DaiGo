@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.jshaz.daigo.ui.ToolBarView
+        android:id="@+id/report_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.jshaz.daigo.ui.ToolBarView>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="选择反馈类型"/>
+        <Spinner
+            android:id="@+id/report_type"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"></Spinner>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="反馈内容"/>
+        <EditText
+            android:id="@+id/report_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@drawable/edittext_bg"
+            android:layout_margin="10dp"
+            android:maxLines="5"/>
+    </LinearLayout>
+
+    <Button
+        android:id="@+id/report_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        style="?borderlessButtonStyle"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:layout_margin="10dp"
+        android:background="@drawable/button_bg"
+        android:textColor="@color/colorWhitePrimary"
+        android:text="提交"/>
+</LinearLayout>

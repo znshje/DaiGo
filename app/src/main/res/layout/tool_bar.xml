@@ -1,0 +1,56 @@
+<RelativeLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:background="@color/colorPrimary"
+    android:layout_width="match_parent"
+    android:layout_height="?attr/actionBarSize">
+
+    <Button
+        android:id="@+id/title_bar_back"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginLeft="5dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentLeft="true"
+        style="?borderlessButtonStyle"
+        android:foreground="?android:attr/selectableItemBackground"/>
+
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="match_parent"
+        android:layout_centerInParent="true">
+        <TextView
+            android:id="@+id/title_bar_text"
+            android:layout_weight="1"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="TITLE"
+            android:textSize="22sp"
+            android:textColor="#fff" />
+        <TextView
+            android:id="@+id/title_bar_campus"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="3dp"
+            android:textColor="#fff"
+            android:textSize="10sp"
+            android:layout_gravity="center"
+            android:gravity="center"
+            android:text="软件园校区"/>
+    </LinearLayout>
+
+
+    <ImageView
+        android:id="@+id/title_bar_right_button"
+        android:layout_width="40dp"
+        android:layout_height="40dp"
+        android:layout_marginRight="5dp"
+        android:layout_centerVertical="true"
+        android:layout_alignParentRight="true"
+        android:clickable="true"
+        android:foreground="?android:attr/selectableItemBackground"/>
+
+</RelativeLayout>

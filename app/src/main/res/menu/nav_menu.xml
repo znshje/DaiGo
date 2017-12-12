@@ -1,0 +1,37 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <group android:checkableBehavior="single">
+        <item
+            android:id="@+id/nav_menu_zhongxin"
+            android:icon="@mipmap/icon_house"
+            android:title="中心校区" />
+        <item
+            android:id="@+id/nav_menu_ruanjianyuan"
+            android:icon="@mipmap/icon_house"
+            android:title="软件园校区" />
+        <item
+            android:id="@+id/nav_menu_hongjialou"
+            android:icon="@mipmap/icon_house"
+            android:title="洪家楼校区" />
+        <item
+            android:id="@+id/nav_menu_baotuquan"
+            android:icon="@mipmap/icon_house"
+            android:title="趵突泉校区" />
+        <item
+            android:id="@+id/nav_menu_xinglongshan"
+            android:icon="@mipmap/icon_house"
+            android:title="兴隆山校区" />
+        <item
+            android:id="@+id/nav_menu_qianfoshan"
+            android:icon="@mipmap/icon_house"
+            android:title="千佛山校区" />
+        <item
+            android:id="@+id/nav_menu_qingdao"
+            android:icon="@mipmap/icon_house"
+            android:title="青岛校区" />
+        <item
+            android:id="@+id/nav_menu_weihai"
+            android:icon="@mipmap/icon_house"
+            android:title="威海校区" />
+    </group>
+</menu>

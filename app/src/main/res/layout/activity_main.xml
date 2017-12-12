@@ -1,0 +1,283 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="5dp"
+        android:layout_gravity="center_horizontal">
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textSize="24sp"
+            android:textColor="#000"
+            android:gravity="center_horizontal"
+            android:text="选择您所在的校区"/>
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center_horizontal"
+            android:text="稍后您可以在设置中更改"/>
+        <View
+            android:layout_width="match_parent"
+            android:layout_height="1dp"
+            android:background="@color/colorPrimary"/>
+    </LinearLayout>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_zhongxin"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/zhongxin_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="中心校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_ruanjianyuan"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/ruanjianyuan_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="软件园校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_hongjialou"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/hongjialou_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="洪家楼校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_baotuquan"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/baotuquan_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="趵突泉校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_xinglongshan"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/xinglongshan_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="兴隆山校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_qianfoshan"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/qianfoshan_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="千佛山校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_qingdao"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/qingdao_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="青岛校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+
+            <com.jshaz.daigo.ui.ExtendedCardView
+                android:id="@+id/select_campus_weihai"
+                android:clickable="true"
+                android:layout_width="match_parent"
+                android:layout_height="200dp"
+                android:layout_margin="10dp">
+
+                <ImageView
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:scaleType="centerCrop"
+                    android:src="@drawable/weihai_big" />
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="bottom"
+                    android:alpha="0.5"
+                    android:background="#000">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_margin="15dp"
+                        android:text="威海校区"
+                        android:textColor="#fff"
+                        android:textSize="20sp" />
+                </LinearLayout>
+            </com.jshaz.daigo.ui.ExtendedCardView>
+        </LinearLayout>
+    </ScrollView>
+
+
+</LinearLayout>

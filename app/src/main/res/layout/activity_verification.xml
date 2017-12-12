@@ -1,0 +1,156 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <com.jshaz.daigo.ui.ToolBarView
+            android:id="@+id/verify_toolbar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"/>
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="实名认证后，可以进行接单。认证信息一旦通过，无法更改。"/>
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
+            android:gravity="center"
+            android:layout_gravity="center_horizontal"
+            android:text="我们不会将您的隐私泄露或用于其他用途。"/>
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhitePrimary">
+
+            <TextView
+                android:layout_margin="15dp"
+                android:layout_width="60dp"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="真实姓名"/>
+            <EditText
+                android:id="@+id/verify_real_name"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:hint="请输入真实姓名"
+                android:background="@drawable/edittext_bg"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhitePrimary">
+
+            <TextView
+                android:layout_margin="15dp"
+                android:layout_width="60dp"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="身份证号"/>
+            <EditText
+                android:id="@+id/verify_idcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:maxLength="18"
+                android:hint="请输入身份证号"
+                android:background="@drawable/edittext_bg"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhitePrimary">
+
+            <TextView
+                android:layout_margin="15dp"
+                android:layout_width="60dp"
+                android:gravity="center"
+                android:layout_height="wrap_content"
+                android:layout_gravity="center_vertical"
+                android:text="学号"/>
+            <EditText
+                android:id="@+id/verify_campus_idcode"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginRight="16dp"
+                android:layout_marginTop="10dp"
+                android:layout_marginBottom="10dp"
+                android:maxLines="1"
+                android:singleLine="true"
+                android:maxLength="18"
+                android:hint="请输入学号"
+                android:background="@drawable/edittext_bg"/>
+        </LinearLayout>
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorWhitePrimary">
+
+            <ImageView
+                android:id="@+id/verify_idcard_up"
+                android:layout_width="170dp"
+                android:layout_height="100dp"
+                android:layout_margin="5dp"
+                android:clickable="true"
+                android:layout_centerHorizontal="true"
+                android:layout_alignParentTop="true"
+                android:src="@drawable/icon_idup"/>
+            <ImageView
+                android:id="@+id/verify_idcard_down"
+                android:layout_width="170dp"
+                android:layout_height="100dp"
+                android:layout_margin="5dp"
+                android:clickable="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/icon_iddown"
+                android:layout_below="@id/verify_idcard_up" />
+            <ImageView
+                android:id="@+id/verify_schoolcard"
+                android:layout_width="170dp"
+                android:layout_height="100dp"
+                android:layout_margin="5dp"
+                android:clickable="true"
+                android:layout_centerHorizontal="true"
+                android:src="@drawable/icon_schcard"
+                android:layout_below="@id/verify_idcard_down" />
+        </RelativeLayout>
+
+        <Button
+            android:id="@+id/verify_submit"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/button_bg"
+            android:textColor="#fff"
+            style="?borderlessButtonStyle"
+            android:foreground="?android:attr/selectableItemBackground"
+            android:text="提交审核"/>
+    </LinearLayout>
+
+</ScrollView>

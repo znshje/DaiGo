@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.jshaz.daigo.ui.ToolBarView
+        android:id="@+id/clip_image_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.jshaz.daigo.ui.ToolBarView>
+
+
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/cb_modify_head"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhitePrimary">
+
+        <TextView
+            android:layout_margin="15dp"
+            android:layout_width="50dp"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="昵称"/>
+        <EditText
+            android:id="@+id/modify_nick_name"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:maxLines="1"
+            android:singleLine="true"
+            android:background="@drawable/edittext_bg"/>
+    </LinearLayout>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorWhitePrimary">
+
+        <TextView
+            android:layout_margin="15dp"
+            android:layout_width="60dp"
+            android:gravity="center"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center_vertical"
+            android:text="收货地址"/>
+        <EditText
+            android:id="@+id/modify_address"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginRight="16dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:maxLines="3"
+            android:background="@drawable/edittext_bg"/>
+    </LinearLayout>
+
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/modify_phone_num"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/modify_verification"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/modif_password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+</LinearLayout>

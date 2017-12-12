@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="50dp">
+
+    <EditText
+        android:id="@+id/vercode_textview_1"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:text="1"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:inputType="number" />
+    <EditText
+        android:id="@+id/vercode_textview_2"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:text="1"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:inputType="number"/>
+    <EditText
+        android:id="@+id/vercode_textview_3"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:text="1"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:inputType="number"/>
+    <EditText
+        android:id="@+id/vercode_textview_4"
+        android:layout_width="50dp"
+        android:layout_height="50dp"
+        android:padding="10dp"
+        android:text="1"
+        android:textSize="24sp"
+        android:gravity="center"
+        android:maxLines="1"
+        android:singleLine="true"
+        android:inputType="number"/>
+
+</LinearLayout>

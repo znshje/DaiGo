@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.jshaz.daigo.ui.ToolBarView
+        android:id="@+id/about_us_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.jshaz.daigo.ui.ToolBarView>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="250dp">
+
+        <ImageView
+            android:layout_width="70dp"
+            android:layout_height="70dp"
+            android:src="@mipmap/ic_launcher_round"
+            android:layout_centerInParent="true"/>
+    </RelativeLayout>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center_horizontal"
+        android:text="代Go"
+        android:textSize="24sp"
+        android:textColor="@color/colorBlackPrimary"/>
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="v 1.0"
+        android:layout_gravity="center_horizontal"/>
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_weight="1"
+        android:layout_height="0dp">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="5dp"
+            android:text="© 2017 Jshaz. All rights reserved."/>
+    </RelativeLayout>
+
+</LinearLayout>

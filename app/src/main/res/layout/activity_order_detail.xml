@@ -1,0 +1,420 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.jshaz.daigo.ui.ToolBarView
+        android:id="@+id/order_detail_toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+    </com.jshaz.daigo.ui.ToolBarView>
+
+    <ScrollView
+        android:id="@+id/order_detail_scroll_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+
+            <LinearLayout
+                android:id="@+id/order_detail_state_bar"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:background="@color/colorPrimary">
+
+                <TextView
+                    android:id="@+id/order_detail_order_state"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textSize="18sp"
+                    android:layout_margin="8dp"
+                    android:layout_gravity="center_vertical"
+                    android:gravity="center"
+                    android:textColor="@color/colorWhitePrimary"/>
+            </LinearLayout>
+
+            <!--标题-->
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:id="@+id/order_detail_title"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:textSize="24sp"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:layout_marginTop="10dp"
+                        android:text=""/>
+                    <TextView
+                        android:id="@+id/order_detail_orderid"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:gravity="center"
+                        android:padding="5dp"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <!--接单人信息-->
+            <android.support.v7.widget.CardView
+                android:id="@+id/receiver_cardview"
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <TextView
+                            android:layout_width="0dp"
+                            android:layout_weight="1"
+                            android:layout_height="wrap_content"
+                            android:textSize="20sp"
+                            android:textColor="@color/colorPrimaryDark"
+                            android:layout_marginTop="10dp"
+                            android:layout_marginLeft="10dp"
+                            android:text="接单人"/>
+                        <TextView
+                            android:id="@+id/order_detail_report_receiver"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="5dp"
+                            android:layout_marginRight="10dp"
+                            android:textColor="#0000FF"
+                            android:text="投诉"
+                            android:clickable="true"
+                            android:focusable="true"/>
+                    </LinearLayout>
+                    <LinearLayout
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content">
+                        <de.hdodenhof.circleimageview.CircleImageView
+                            android:id="@+id/order_detail_receiver_head"
+                            android:layout_width="60dp"
+                            android:layout_height="60dp"
+                            android:layout_margin="10dp"/>
+                        <LinearLayout
+                            android:orientation="vertical"
+                            android:layout_marginTop="10dp"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content">
+
+                            <TextView
+                                android:id="@+id/order_detail_receiver_nickname"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginTop="10dp"
+                                android:textSize="24sp"
+                                android:textColor="@color/colorBlackPrimary"
+                                android:maxLines="1"
+                                android:ellipsize="end"/>
+                            <TextView
+                                android:id="@+id/order_detail_time_info"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
+                                android:layout_marginRight="10dp"
+                                android:layout_marginTop="5dp"
+                                android:textColor="@color/colorBlackPrimary" />
+                        </LinearLayout>
+
+                    </LinearLayout>
+
+
+                    <TextView
+                        android:id="@+id/order_detail_receiver_phonenum"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_below="@id/order_detail_receiver_head"
+                        android:layout_margin="10dp"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:textSize="20sp"/>
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <!--发单人信息-->
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <de.hdodenhof.circleimageview.CircleImageView
+                        android:id="@+id/order_detail_sender_head"
+                        android:layout_width="60dp"
+                        android:layout_height="60dp"
+                        android:layout_margin="10dp"/>
+                    <TextView
+                        android:id="@+id/order_detail_sender_nickname"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="24sp"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:layout_gravity="center_vertical"
+                        android:maxLines="1"
+                        android:ellipsize="end"/>
+
+                </LinearLayout>
+
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:layout_margin="10dp"
+                        android:text="发布时间"/>
+                    <TextView
+                        android:id="@+id/order_detail_release_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginLeft="5dp"
+                        android:layout_gravity="center_vertical"/>
+                </LinearLayout>
+
+
+
+
+            </android.support.v7.widget.CardView>
+
+            <!--配送时间-->
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:layout_margin="10dp"
+                        android:text="配送时间"/>
+                    <TextView
+                        android:id="@+id/order_detail_request_time"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:layout_marginLeft="5dp"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <!--感谢金额-->
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:layout_margin="10dp"
+                        android:text="感谢金额"/>
+                    <TextView
+                        android:id="@+id/order_detail_price"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:layout_marginLeft="5dp"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <!--联系方式-->
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:layout_margin="10dp"
+                        android:text="联系方式"/>
+                    <TextView
+                        android:id="@+id/order_detail_contact"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:layout_marginLeft="5dp"
+                        android:layout_marginRight="5dp"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_marginTop="10dp"
+                android:layout_marginLeft="10dp"
+                android:layout_marginRight="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:layout_margin="10dp"
+                        android:text="收货地址"/>
+                    <TextView
+                        android:id="@+id/order_detail_public_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:layout_margin="10dp"
+                        android:gravity="center"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <android.support.v7.widget.CardView
+                android:layout_margin="10dp"
+                app:cardCornerRadius="2dp"
+                app:cardElevation="2dp"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content">
+
+                <LinearLayout
+                    android:orientation="vertical"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:textSize="20sp"
+                        android:textColor="@color/colorPrimaryDark"
+                        android:layout_margin="10dp"
+                        android:text="备注信息"/>
+                    <TextView
+                        android:id="@+id/order_detail_private_content"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_gravity="center_vertical"
+                        android:textColor="@color/colorBlackPrimary"
+                        android:layout_margin="10dp"
+                        android:gravity="center"/>
+                </LinearLayout>
+            </android.support.v7.widget.CardView>
+
+            <Button
+                android:id="@+id/order_detail_cancel_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                style="?borderlessButtonStyle"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:background="@drawable/button_bg"
+                android:textColor="@color/colorWhitePrimary"
+                android:text="取消订单"/>
+
+            <Button
+                android:id="@+id/order_detail_accept_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                style="?borderlessButtonStyle"
+                android:background="@drawable/button_bg"
+                android:foreground="?android:attr/selectableItemBackground"
+                android:textColor="@color/colorWhitePrimary"
+                android:text="接单"/>
+
+            <Button
+                android:id="@+id/order_detail_complete_order"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="10dp"
+                android:foreground="?android:attr/selectableItemBackground"
+                style="?borderlessButtonStyle"
+                android:background="@drawable/button_bg"
+                android:textColor="@color/colorWhitePrimary"
+                android:text="完成配送"/>
+        </LinearLayout>
+    </ScrollView>
+
+
+
+</LinearLayout>

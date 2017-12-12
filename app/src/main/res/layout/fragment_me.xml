@@ -1,0 +1,58 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/me_my_order"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/me_modify_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/me_report"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/me_settings"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:visibility="gone"/>
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/me_about_us"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+
+    <Button
+        android:id="@+id/me_logout"
+        android:layout_marginTop="20dp"
+        android:layout_marginLeft="10dp"
+        android:layout_marginRight="10dp"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_red"
+        android:textColor="@color/colorWhitePrimary"
+        android:foreground="?android:attr/selectableItemBackground"
+        style="?borderlessButtonStyle"
+        android:text="退出登录"/>
+</LinearLayout>

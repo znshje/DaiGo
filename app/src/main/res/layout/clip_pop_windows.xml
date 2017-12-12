@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/clip_pop_layout"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:background="@color/transparent">
+
+    <View
+        android:id="@+id/clip_view"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:background="#000" />
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#efefef" />
+
+    <TextView
+        android:id="@+id/clip_item_popupwindows_camera"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_white_bg"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="拍照"
+        android:textColor="#585858"
+        android:textSize="16sp"
+        android:clickable="true"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="#efefef" />
+
+
+    <TextView
+        android:id="@+id/clip_item_popupwindows_Photo"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_white_bg"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="从相册中选取"
+        android:textColor="#585858"
+        android:textSize="16sp"
+        android:clickable="true"/>
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="#efefef" />
+
+    <TextView
+        android:id="@+id/clip_item_popupwindows_cancel"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@drawable/button_white_bg"
+        android:gravity="center"
+        android:padding="15dp"
+        android:text="取消"
+        android:textColor="#585858"
+        android:textSize="16sp"
+        android:clickable="true"/>
+
+</LinearLayout>

@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <View
+        android:layout_width="match_parent"
+        android:layout_height="1dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+
+    <RelativeLayout
+        android:id="@+id/complex_button_body"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:clickable="true">
+        <TextView
+            android:id="@+id/complex_button_item_name"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginLeft="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_centerVertical="true"
+            android:textAppearance="@style/Base.Widget.AppCompat.Button.Small"
+            android:textSize="20sp"/>
+        <de.hdodenhof.circleimageview.CircleImageView
+            android:id="@+id/complex_button_item_image"
+            android:layout_marginTop="10dp"
+            android:layout_marginBottom="10dp"
+            android:layout_width="60dp"
+            android:layout_height="60dp"
+            android:layout_toLeftOf="@id/complex_button_item_right_arrow"
+            android:clickable="true"
+            android:src="@mipmap/ic_launcher"/>
+        <TextView
+            android:id="@+id/complex_button_item_detail"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_toLeftOf="@id/complex_button_item_right_arrow"
+            android:ellipsize="end"
+            android:maxLength="11"/>
+        <ImageView
+            android:id="@+id/complex_button_item_right_arrow"
+            android:layout_width="30dp"
+            android:layout_height="50dp"
+            android:layout_alignParentRight="true"
+            android:layout_centerVertical="true"
+            android:src="@mipmap/icon_right_arrow"/>
+    </RelativeLayout>
+
+
+</LinearLayout>

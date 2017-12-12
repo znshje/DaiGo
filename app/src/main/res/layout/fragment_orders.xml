@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical" android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.jshaz.daigo.recyclerviewpack.PullRefreshLayout
+        android:id="@+id/swipe_order_list"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <android.support.v7.widget.RecyclerView
+            android:id="@+id/order_recycler_view"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            tools:listitem="@layout/info_item">
+
+        </android.support.v7.widget.RecyclerView>
+
+    </com.jshaz.daigo.recyclerviewpack.PullRefreshLayout>
+
+</RelativeLayout>
