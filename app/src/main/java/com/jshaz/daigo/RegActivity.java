@@ -7,6 +7,7 @@ package com.jshaz.daigo;
 import android.annotation.SuppressLint;
 import android.app.ProgressDialog;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.os.CountDownTimer;
 import android.os.Handler;
@@ -26,6 +27,7 @@ import android.widget.Toast;
 import com.jshaz.daigo.serverutil.ServerUtil;
 import com.jshaz.daigo.ui.BaseActivity;
 import com.jshaz.daigo.util.SMSUtil;
+import com.jshaz.daigo.util.Utility;
 import com.mob.MobSDK;
 
 import org.apache.http.HttpEntity;
@@ -398,6 +400,10 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
 
                         params.add(new BasicNameValuePair("phonenum", phoneNum));
                         params.add(new BasicNameValuePair("password", password));
+                        params.add(new BasicNameValuePair("headicon",
+                                Utility.convertBitmapToString(BitmapFactory.decodeResource(
+                                        getResources(), R.drawable.default_head_icon
+                                ))));
 
                         final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                         httpPost.setEntity(entity);
@@ -407,19 +413,19 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
                         {
                             HttpEntity entity1 = httpResponse.getEntity();
                             response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                            Message message=new Message();
-                            message.what=0;
-                            message.obj=response;
+                            Message message = handler.obtainMessage();
+                            message.what = 0;
+                            message.obj = response;
                             handler.handleMessage(message);
                         } else {
-                            Message message=new Message();
-                            message.what=1;
+                            Message message = handler.obtainMessage();
+                            message.what = 1;
                             handler.handleMessage(message);
                         }
                     } catch (Exception e) {
                         e.printStackTrace();
-                        Message message=new Message();
-                        message.what=1;
+                        Message message = handler.obtainMessage();
+                        message.what = 1;
                         handler.handleMessage(message);
                     }
                     Looper.loop();

@@ -24,4 +24,31 @@
             android:layout_gravity="center_vertical"
             android:textColor="@color/colorBlackPrimary"/>
     </LinearLayout>
+
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:text="投诉内容"/>
+        <EditText
+            android:id="@+id/complain_content"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="10dp"
+            android:background="@drawable/edittext_bg"
+            android:maxLines="10"/>
+    </LinearLayout>
+    <Button
+        android:id="@+id/complain_submit"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:textColor="@color/colorWhitePrimary"
+        android:background="@drawable/button_bg"
+        android:foreground="?android:attr/selectableItemBackground"
+        android:layout_margin="10dp"
+        android:text="提交"/>
 </LinearLayout>

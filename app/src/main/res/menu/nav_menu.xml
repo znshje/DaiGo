@@ -1,6 +1,15 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <group android:checkableBehavior="single">
+    <group
+        android:id="@+id/nav_group_1"
+        android:checkableBehavior="none">
+        <item android:id="@+id/nav_menu_my_order"
+            android:icon="@mipmap/nav_icon_order"
+            android:title="我的订单"/>
+    </group>
+    <group
+        android:id="@+id/nav_group_2"
+        android:checkableBehavior="single">
         <item
             android:id="@+id/nav_menu_zhongxin"
             android:icon="@mipmap/icon_house"
@@ -34,4 +43,6 @@
             android:icon="@mipmap/icon_house"
             android:title="威海校区" />
     </group>
+
+
 </menu>

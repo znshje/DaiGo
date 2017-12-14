@@ -54,7 +54,7 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
     //头像字符串
     private String headIcon;
     //校区代码
-    private int campusCode;
+    private int campusCode = 0;
     //身份证号
     private String IDCode;
     //真实姓名
@@ -259,7 +259,7 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         if (response.equals("false")) {
                             message.what = USER_WRONG;
                             message.obj = response;
@@ -273,7 +273,7 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = NET_ERROR;
                     handler.handleMessage(message);
                 }

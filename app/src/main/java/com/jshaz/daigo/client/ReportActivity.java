@@ -149,17 +149,17 @@ public class ReportActivity extends BaseActivity {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = 0;
                         handler.handleMessage(message);
                     } else {
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = 1;
                         handler.handleMessage(message);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = 1;
                     handler.handleMessage(message);
                 }

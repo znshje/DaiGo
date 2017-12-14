@@ -7,6 +7,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.media.Image;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
@@ -22,6 +23,7 @@ import android.util.Log;
 import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -74,6 +76,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     private int curFragment = 0;
 
     private CircleImageView drawerHead;
+    private ImageView verifyLogo;
 
     private TextView drawerPhone;
 
@@ -169,6 +172,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         orderFragment.setUser(curUser);
         meFragment = new MeFragment();
         meFragment.setActivity(this);
+        meFragment.setToolBarView(toolBarView);
 
         /*设置标题栏左侧按钮功能*/
         toolBarView.setBackButtonVisible(true);
@@ -256,52 +260,71 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                 NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-                if (!orderFragment.isRefreshing()) {
-                    drawerLayout.closeDrawers();
-                    curUser.setCampusCode(Setting.getNavMenuCampusCode(item.getItemId()));
-                    campusSetting.setCampusCode(curUser.getCampusCode());
-                    campusSetting.writeToLocalSharedPref();
-                    curUser.writeToLocalDatabase();
 
-                    /**
-                     * 将更改的数据上传到服务器
-                     */
-                    new Thread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Looper.prepare();
-                            try{
-                                BasicHttpParams httpParams = new BasicHttpParams();
-                                HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
-                                HttpConnectionParams.setSoTimeout(httpParams, 5000);
-
-                                HttpClient httpclient = new DefaultHttpClient(httpParams);
-
-                                //服务器地址，指向Servlet
-                                HttpPost httpPost = new HttpPost(ServerUtil.SLUpdateCampusCode);
-
-                                List<NameValuePair> params = new ArrayList<NameValuePair>();//将数据装入list
-                                params.add(new BasicNameValuePair("userid", curUser.getUserId()));
-                                params.add(new BasicNameValuePair("campuscode",
-                                        "" + campusSetting.getCampusCode()));
-
-                                final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
-                                httpPost.setEntity(entity);
-                                //对提交数据进行编码
-                                httpclient.execute(httpPost);
-                            } catch (Exception e) {
-                                e.printStackTrace();
-                            }
-                            Looper.loop();
+                switch (item.getGroupId()) {
+                    case R.id.nav_group_1:
+                        try{
+                            drawerLayout.closeDrawers();
+                            UserIntent userIntent = new UserIntent();
+                            userIntent.setUserId(curUser.getUserId());
+                            startActivity(new Intent(ClientMainActivity.this, MyOrderActivity.class)
+                                .putExtra("user", userIntent));
+                        } catch (Exception e) {
+                            e.printStackTrace();
                         }
-                    }).start();
-                    if (curFragment != 0) {
-                        navigationView.getBtnLeft().callOnClick();
-                    }
-                    orderFragment.refreshOrder();
-                    fillUserInfo();
-                    return true;
+
+                        break;
+                    case R.id.nav_group_2:
+                        if (!orderFragment.isRefreshing()) {
+                            drawerLayout.closeDrawers();
+                            curUser.setCampusCode(Setting.getNavMenuCampusCode(item.getItemId()));
+                            campusSetting.setCampusCode(curUser.getCampusCode());
+                            campusSetting.writeToLocalSharedPref();
+                            curUser.writeToLocalDatabase();
+
+                            /**
+                             * 将更改的数据上传到服务器
+                             */
+                            new Thread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Looper.prepare();
+                                    try{
+                                        BasicHttpParams httpParams = new BasicHttpParams();
+                                        HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
+                                        HttpConnectionParams.setSoTimeout(httpParams, 5000);
+
+                                        HttpClient httpclient = new DefaultHttpClient(httpParams);
+
+                                        //服务器地址，指向Servlet
+                                        HttpPost httpPost = new HttpPost(ServerUtil.SLUpdateCampusCode);
+
+                                        List<NameValuePair> params = new ArrayList<NameValuePair>();//将数据装入list
+                                        params.add(new BasicNameValuePair("userid", curUser.getUserId()));
+                                        params.add(new BasicNameValuePair("campuscode",
+                                                "" + campusSetting.getCampusCode()));
+
+                                        final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
+                                        httpPost.setEntity(entity);
+                                        //对提交数据进行编码
+                                        httpclient.execute(httpPost);
+                                    } catch (Exception e) {
+                                        e.printStackTrace();
+                                    }
+                                    Looper.loop();
+                                }
+                            }).start();
+                            if (curFragment != 0) {
+                                navigationView.getBtnLeft().callOnClick();
+                            }
+                            orderFragment.refreshOrder();
+                            fillUserInfo();
+                            return true;
+                        }
+                        break;
                 }
+
+
                 return false;
             }
         });
@@ -438,6 +461,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         drawerHead = (CircleImageView) findViewById(R.id.nav_head_image);
         drawerNickName = (TextView) findViewById(R.id.nav_head_nickname);
         drawerPhone = (TextView) findViewById(R.id.nav_head_phonenum);
+        verifyLogo = (ImageView) findViewById(R.id.nav_head_verify_logo);
 
         if (isLogin) {
             curUser.readFromLocalDatabase();
@@ -447,6 +471,11 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
             String phoneT = curUser.getPhoneNum();
             drawerPhone.setText(phoneT.substring(0, 3) + "****" + phoneT.substring(7));
             drawerHead.setOnClickListener(null);
+            if (curUser.isVerified()) {
+                verifyLogo.setImageResource(R.mipmap.icon_yes_verify);
+            } else {
+                verifyLogo.setImageResource(R.mipmap.icon_no_verify);
+            }
         } else {
             curUser.setNullValue();
             drawerHead.setImageResource(R.drawable.login);
@@ -459,6 +488,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                     //finish();
                 }
             });
+            verifyLogo.setImageBitmap(null);
         }
 
 

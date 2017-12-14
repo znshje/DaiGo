@@ -118,7 +118,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
-        order = new OrderDAO(orderList.get(position));
+        order = orderList.get(position);
 
         holder.infoTitle.setText(order.getTitle());
         holder.infoContent.setText(order.getPublicDetails());
@@ -127,6 +127,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
             @Override
             public void onClick(View view) {
                 //parentActivity.setDetailActivityReturned(true);
+                order = orderList.get(position);
                 Intent intent = new Intent(mContext, OrderDetailActivity.class);
                 intent.putExtra("order_id", order.getOrderId());
                 intent.putExtra("user_id", userId);
@@ -296,19 +297,19 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = 1;
                         message.obj = response;
                         message.arg1 = position;
                         handler.handleMessage(message);
                     } else {
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = BaseClassImpl.NET_ERROR;
                         handler.handleMessage(message);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(message);
                 }

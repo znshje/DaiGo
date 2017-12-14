@@ -131,4 +131,11 @@ public class ToolBarView extends RelativeLayout{
     public void setTitleCampus(int campusCode) {
         titleCampus.setText(Setting.getCampusName(campusCode));
     }
+
+    /**
+     * 返回按钮点击事件
+     */
+    public void callOnBackButtonClick() {
+        backButton.callOnClick();
+    }
 }

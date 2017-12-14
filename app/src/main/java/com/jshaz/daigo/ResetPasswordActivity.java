@@ -192,18 +192,18 @@ public class ResetPasswordActivity extends BaseActivity {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message=new Message();
+                        Message message = mHandler.obtainMessage();
                         message.what=0;
                         message.obj=response;
                         mHandler.handleMessage(message);
                     } else {
-                        Message message=new Message();
+                        Message message = mHandler.obtainMessage();
                         message.what=2;
                         mHandler.handleMessage(message);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message message=new Message();
+                    Message message = mHandler.obtainMessage();
                     message.what=2;
                     mHandler.handleMessage(message);
                 }

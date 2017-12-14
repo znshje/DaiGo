@@ -108,7 +108,9 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="5dp"
                             android:layout_marginRight="10dp"
+                            android:padding="5dp"
                             android:textColor="#0000FF"
+                            android:foreground="?android:attr/selectableItemBackground"
                             android:text="投诉"
                             android:clickable="true"
                             android:focusable="true"/>

@@ -13,20 +13,43 @@
         android:src="@drawable/login"
         android:layout_centerHorizontal="true"/>
 
-    <TextView
-        android:id="@+id/nav_head_nickname"
+    <LinearLayout
+        android:orientation="vertical"
         android:layout_below="@id/nav_head_image"
-        android:layout_centerHorizontal="false"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textSize="24sp"
-        android:textColor="@color/colorWhitePrimary" />
-    <TextView
-        android:id="@+id/nav_head_phonenum"
-        android:layout_below="@id/nav_head_nickname"
-        android:layout_centerHorizontal="false"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:textColor="@color/colorWhitePrimary" />
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/nav_head_nickname"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textSize="24sp"
+                android:textColor="@color/colorWhitePrimary" />
+            <ImageView
+                android:id="@+id/nav_head_verify_logo"
+                android:layout_width="60dp"
+                android:layout_height="25dp"
+                android:layout_marginLeft="10dp"
+                android:src="@mipmap/icon_no_verify"
+                android:layout_gravity="center_vertical"/>
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+            <TextView
+                android:id="@+id/nav_head_phonenum"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="@color/colorWhitePrimary" />
+        </LinearLayout>
+    </LinearLayout>
+
+
+
+
 
 </RelativeLayout>

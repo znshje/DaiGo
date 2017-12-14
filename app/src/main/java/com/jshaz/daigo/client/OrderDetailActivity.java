@@ -364,6 +364,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
         completeOrder.setVisibility(View.VISIBLE);
 //        acceptOrder.setText("您已接单。请尽快完成配送。");
 //        acceptOrder.setEnabled(false);
+        reportReceiver.setVisibility(View.INVISIBLE);
         contact.setText(order.getContact());
     }
 
@@ -400,6 +401,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
         cancelOrder.setVisibility(GONE);
         acceptOrder.setVisibility(View.VISIBLE);
         completeOrder.setVisibility(GONE);
+        reportReceiver.setVisibility(View.INVISIBLE);
         contact.setText("（接单后可查看）");
     }
 
@@ -422,7 +424,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                     date = uc.getDate();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message msg = new Message();
+                    Message msg = handler.obtainMessage();
                     msg.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(msg);
                 }
@@ -447,13 +449,13 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                     HttpResponse httpResponse = httpclient.execute(httpPost);
                     if (httpResponse.getStatusLine().getStatusCode() == 200)//在5000毫秒之内接收到返回值
                     {
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = 0;
                         handler.handleMessage(message);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(message);
                 }
@@ -493,18 +495,18 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = 2;
                         message.obj = response;
                         handler.handleMessage(message);
                     } else {
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = BaseClassImpl.NET_ERROR;
                         handler.handleMessage(message);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(message);
                 }
@@ -532,7 +534,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                     date = uc.getDate();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message msg = new Message();
+                    Message msg = handler.obtainMessage();
                     msg.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(msg);
                 }
@@ -562,18 +564,18 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = 1;
                         message.obj = response;
                         handler.handleMessage(message);
                     } else {
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = BaseClassImpl.NET_ERROR;
                         handler.handleMessage(message);
                     }
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Message message = new Message();
+                    Message message = handler.obtainMessage();
                     message.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(message);
                 }
@@ -601,7 +603,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                     date = uc.getDate();
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message msg = new Message();
+                    Message msg = handler.obtainMessage();
                     msg.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(msg);
                 }
@@ -630,12 +632,12 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = 3;
                         message.obj = response;
                         handler.handleMessage(message);
                     } else {
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
                         message.what = BaseClassImpl.NET_ERROR;
                         handler.handleMessage(message);
                     }

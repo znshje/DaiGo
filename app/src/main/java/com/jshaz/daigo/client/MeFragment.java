@@ -25,6 +25,7 @@ import com.jshaz.daigo.ModifyInfoActivity;
 import com.jshaz.daigo.R;
 import com.jshaz.daigo.intents.UserIntent;
 import com.jshaz.daigo.ui.ComplexButton;
+import com.jshaz.daigo.ui.ToolBarView;
 import com.jshaz.daigo.util.Setting;
 import com.jshaz.daigo.util.User;
 
@@ -43,6 +44,7 @@ public class MeFragment extends Fragment {
     private ComplexButton CBSettings;
     private ComplexButton CBAboutUs;
     private ComplexButton CBReport;
+    private ComplexButton CBOpenDrawer;
 
     private Button logout;
 
@@ -51,6 +53,7 @@ public class MeFragment extends Fragment {
     private User user;
 
     private Activity parentActivity;
+    private ToolBarView toolBarView;
 
     @Nullable
     @Override
@@ -68,7 +71,18 @@ public class MeFragment extends Fragment {
         CBAboutUs = (ComplexButton) view.findViewById(R.id.me_about_us);
         CBReport = (ComplexButton) view.findViewById(R.id.me_report);
         CBSettings = (ComplexButton) view.findViewById(R.id.me_settings);
+        CBOpenDrawer = (ComplexButton) view.findViewById(R.id.me_open_drawer);
         logout = (Button) view.findViewById(R.id.me_logout);
+
+
+        CBOpenDrawer.selectType(ComplexButton.TYPE_TEXT_ONLY);
+        CBOpenDrawer.setItemName("我的资料/选择校区");
+        CBOpenDrawer.setButtonOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                toolBarView.callOnBackButtonClick();
+            }
+        });
 
 
         CBModifyInfo.setButtonOnClickListener(new View.OnClickListener() {
@@ -194,6 +208,10 @@ public class MeFragment extends Fragment {
     public void onResume() {
         super.onResume();
         getUserInfo();
+    }
+
+    public void setToolBarView(ToolBarView toolBarView) {
+        this.toolBarView = toolBarView;
     }
 
     /**

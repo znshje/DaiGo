@@ -75,11 +75,12 @@ public class AddOrderActivity extends BaseActivity {
 
     private ToolBarView toolBarView;
 
-    public static final String[] TYPE_NAME = new String[] {"代购", "取快递"};
+    public static final String[] TYPE_NAME = new String[] {"代购", "取快递", "搬运和送物品"};
     public static final String[] TIME_LIST = new String[] {"20", "30", "40", "60", "90", "120"};
 
     public static final int TYPE_PURCHASE = 0;
     public static final int TYPE_EXPRESS = 1;
+    public static final int TYPE_CARRY = 2;
     public static final long[] TIME_MILLIS = new long[] {20 * 60 * 1000, 30 * 60 * 1000,
         40 * 60 * 1000, 60 * 60 * 1000, 90 * 60 * 1000, 120 * 60 * 1000};
 
@@ -131,6 +132,7 @@ public class AddOrderActivity extends BaseActivity {
         /*选择类型的Spinner添加选项*/
         typeList.add(TYPE_NAME[TYPE_PURCHASE]);
         typeList.add(TYPE_NAME[TYPE_EXPRESS]);
+        typeList.add(TYPE_NAME[TYPE_CARRY]);
 
         receiver = new NetWorkStateReceiver(this);
         /*选择校区的Spinner添加选项*/
@@ -303,7 +305,7 @@ public class AddOrderActivity extends BaseActivity {
                 @Override
                 public void run() {
                     Looper.prepare();
-                    Message msg = new Message();
+                    Message msg = mHandler.obtainMessage();
                     String result = "";
                     try {
                         URL url = new URL("https://www.baidu.com");
@@ -369,15 +371,15 @@ public class AddOrderActivity extends BaseActivity {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message=new Message();
-                        message.what=2;
-                        message.obj=response;
+                        Message message = mHandler.obtainMessage();
+                        message.what = 2;
+                        message.obj = response;
                         mHandler.handleMessage(message);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message message=new Message();
-                    message.what=3;
+                    Message message = mHandler.obtainMessage();
+                    message.what = 3;
                     mHandler.handleMessage(message);
                 }
                 Looper.loop();

@@ -133,7 +133,7 @@ public class AutoUpdateService extends Service {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = new Message();
+                        Message message = handler.obtainMessage();
 
                             message.what = 0;
                             message.obj = response;

@@ -177,21 +177,21 @@ public class ShowMyOrdersFragment extends Fragment {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message=new Message();
-                        message.what=0;
-                        message.obj=response;
+                        Message message = handler.obtainMessage();
+                        message.what = 0;
+                        message.obj = response;
                         handler.handleMessage(message);
                     } else {
-                        Message message=new Message();
-                        message.what= BaseClassImpl.NET_ERROR;
+                        Message message = handler.obtainMessage();
+                        message.what = BaseClassImpl.NET_ERROR;
                         handler.handleMessage(message);
                     }
                 } catch (NullPointerException e) {
                     e.printStackTrace();
                 } catch (IOException e) {
                     e.printStackTrace();
-                    Message message=new Message();
-                    message.what= BaseClassImpl.NET_ERROR;
+                    Message message = handler.obtainMessage();
+                    message.what = BaseClassImpl.NET_ERROR;
                     handler.handleMessage(message);
                 }
                 Looper.loop();

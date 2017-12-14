@@ -596,15 +596,15 @@ public class ModifyInfoActivity extends BaseActivity implements View.OnClickList
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message=new Message();
-                        message.what=0;
-                        message.obj=response;
+                        Message message = mHandler.obtainMessage();
+                        message.what = 0;
+                        message.obj = response;
                         mHandler.handleMessage(message);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message message=new Message();
-                    message.what=User.NET_ERROR;
+                    Message message = mHandler.obtainMessage();
+                    message.what = User.NET_ERROR;
                     mHandler.handleMessage(message);
                 }
                 Looper.loop();

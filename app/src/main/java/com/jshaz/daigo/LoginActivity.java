@@ -175,19 +175,19 @@ public class LoginActivity extends BaseActivity {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message=handler.obtainMessage();
-                        message.what=0;
-                        message.obj=response;
+                        Message message = handler.obtainMessage();
+                        message.what = 0;
+                        message.obj = response;
                         handler.handleMessage(message);
                     } else {
-                        Message message=new Message();
-                        message.what=1;
+                        Message message = handler.obtainMessage();
+                        message.what = 1;
                         handler.handleMessage(message);
                     }
                 } catch (Exception e) {
                     e.printStackTrace();
-                    Message message=new Message();
-                    message.what=1;
+                    Message message = handler.obtainMessage();
+                    message.what = 1;
                     handler.handleMessage(message);
                 }
                 Looper.loop();
