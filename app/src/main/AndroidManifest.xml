@@ -124,7 +124,8 @@
             android:screenOrientation="portrait" />
         <activity android:name=".EULAActivity" />
         <activity android:name=".ProtocolActivity" />
-        <activity android:name=".client.ComplainActivity"></activity>
+        <activity android:name=".client.ComplainActivity" />
+        <activity android:name=".ExpressActivity"></activity>
     </application>
 
 </manifest>

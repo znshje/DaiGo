@@ -24,6 +24,8 @@ import android.view.KeyEvent;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
+import android.widget.LinearLayout;
+import android.widget.RelativeLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
@@ -73,6 +75,8 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
 
     private DrawerLayout drawerLayout;
 
+    private RelativeLayout expressLayout;
+
     private int curFragment = 0;
 
     private CircleImageView drawerHead;
@@ -102,13 +106,22 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_main);
 
+        getUserInfo();
+
         initView();
+
+        initNavigationOnSelectedListener();
+
+        fillUserInfo();
 
         initReceiver();
 
         startAutoUpdateService();
 
-        getUserInfo();
+        /**
+         * need Debug
+         */
+        startExpress(getIntent().getBooleanExtra("first_start", false));
 
     }
 
@@ -147,6 +160,55 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     }
 
     /**
+     * 打开初次启动时的提示页面
+     */
+    private void startExpress(boolean b) {
+        if (b) {
+            expressLayout.setVisibility(View.VISIBLE);
+            final ImageView[] imageViews = new ImageView[2];
+            imageViews[0] = (ImageView) findViewById(R.id.express_0);
+            imageViews[1] = (ImageView) findViewById(R.id.express_1);
+
+            for (int i = 0; i < 2; i++) {
+                imageViews[i].setVisibility(View.INVISIBLE);
+            }
+            ////////////////////////////////////////
+            imageViews[0].setVisibility(View.VISIBLE);
+            expressLayout.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (imageViews[0].getVisibility() == View.VISIBLE) {
+                        imageViews[0].setVisibility(View.INVISIBLE);
+                        imageViews[1].setVisibility(View.VISIBLE);
+                    } else if (imageViews[1].getVisibility() == View.VISIBLE) {
+                        expressLayout.setVisibility(View.GONE);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                drawerLayout.openDrawer(GravityCompat.START);
+                            }
+                        }, 200);
+                        new Handler().postDelayed(new Runnable() {
+                            @Override
+                            public void run() {
+                                try {
+                                    drawerLayout.closeDrawers();
+                                } catch (Exception e) {
+                                    e.printStackTrace();
+                                }
+                            }
+                        }, 800);
+
+                    }
+                }
+            });
+            initNavigationOnSelectedListener();
+        } else {
+            expressLayout.setVisibility(View.GONE);
+        }
+    }
+
+    /**
      * 初始化View
      */
     private void initView() {
@@ -156,6 +218,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         navigationMenuView = (android.support.design.widget.NavigationView)
                 findViewById(R.id.nav_menu);
         drawerLayout = (DrawerLayout) findViewById(R.id.drawer_layout);
+        expressLayout = (RelativeLayout) findViewById(R.id.express_layout);
 
 
         campusSetting = new Setting(this);
@@ -206,7 +269,9 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                     curFragment = 0;
                     replaceFragment(orderFragment, SLIDE_FROM_LEFT_TO_RIGHT);
                 } else {
-                    orderFragment.refreshOrder();
+                    if (!orderFragment.isLoading() && !orderFragment.isRefreshing()) {
+                        orderFragment.refreshOrder();
+                    }
                 }
             }
         });
@@ -255,12 +320,66 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         });
 
 
+        /**
+         * 初次运行时会出错
+         */
+
+
+        /**
+         * 初始化抽屉内容
+         * 防止空指针出现
+         */
+        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
+            @Override
+            public void onDrawerSlide(View drawerView, float slideOffset) {
+                if (!isDrawerLoaded) {
+                    fillDrawerLayoutInfo();
+                    isDrawerLoaded = true;
+                }
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+
+            }
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                isDrawerLoaded = false;
+            }
+
+            @Override
+            public void onDrawerStateChanged(int newState) {
+
+            }
+        });
+
+        /*设置标题*/
+        toolBarView.setTitleText("订单");
+        /*设置校区可见*/
+        toolBarView.setTitleCampusVisible(true);
+        /*切换到订单碎片*/
+        replaceFragmentWithoutAnimation(orderFragment);
+    }
+
+    /**
+     * 初始化广播监听器
+     */
+    private void initReceiver() {
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction("com.jshaz.daigo.UPDATE_ORDER");
+        orderUpdateReceiver = new OrderUpdateReceiver();
+        orderUpdateReceiver.setNavigationView(navigationView);
+        localBroadcastManager = LocalBroadcastManager.getInstance(this);
+        localBroadcastManager.registerReceiver(orderUpdateReceiver, intentFilter);
+    }
+
+    private void initNavigationOnSelectedListener() {
         /*侧滑菜单的监听事件*/
         navigationMenuView.setNavigationItemSelectedListener(new android.support.design.widget.
                 NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-
                 switch (item.getGroupId()) {
                     case R.id.nav_group_1:
                         try{
@@ -268,14 +387,14 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                             UserIntent userIntent = new UserIntent();
                             userIntent.setUserId(curUser.getUserId());
                             startActivity(new Intent(ClientMainActivity.this, MyOrderActivity.class)
-                                .putExtra("user", userIntent));
+                                    .putExtra("user", userIntent));
                         } catch (Exception e) {
                             e.printStackTrace();
                         }
 
                         break;
                     case R.id.nav_group_2:
-                        if (!orderFragment.isRefreshing()) {
+                        if (!orderFragment.isRefreshing() && !orderFragment.isLoading()) {
                             drawerLayout.closeDrawers();
                             curUser.setCampusCode(Setting.getNavMenuCampusCode(item.getItemId()));
                             campusSetting.setCampusCode(curUser.getCampusCode());
@@ -328,54 +447,6 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                 return false;
             }
         });
-
-        /**
-         * 初始化抽屉内容
-         * 防止空指针出现
-         */
-        drawerLayout.setDrawerListener(new DrawerLayout.DrawerListener() {
-            @Override
-            public void onDrawerSlide(View drawerView, float slideOffset) {
-                if (!isDrawerLoaded) {
-                    fillDrawerLayoutInfo();
-                    isDrawerLoaded = true;
-                }
-            }
-
-            @Override
-            public void onDrawerOpened(View drawerView) {
-
-            }
-
-            @Override
-            public void onDrawerClosed(View drawerView) {
-                isDrawerLoaded = false;
-            }
-
-            @Override
-            public void onDrawerStateChanged(int newState) {
-
-            }
-        });
-
-        /*设置标题*/
-        toolBarView.setTitleText("订单");
-        /*设置校区可见*/
-        toolBarView.setTitleCampusVisible(true);
-        /*切换到订单碎片*/
-        replaceFragmentWithoutAnimation(orderFragment);
-    }
-
-    /**
-     * 初始化广播监听器
-     */
-    private void initReceiver() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction("com.jshaz.daigo.UPDATE_ORDER");
-        orderUpdateReceiver = new OrderUpdateReceiver();
-        orderUpdateReceiver.setNavigationView(navigationView);
-        localBroadcastManager = LocalBroadcastManager.getInstance(this);
-        localBroadcastManager.registerReceiver(orderUpdateReceiver, intentFilter);
     }
 
     /**
@@ -397,7 +468,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         }
         //从本地读取登录的用户ID
         curUser.readFromLocalSharedPref();
-        //从本地读取用户缓存数据
+        //从本地读取用户缓存数据（密码！密码！密码！）
         curUser.readFromLocalDatabase();
         if (curUser.getUserId().equals("")) {
             isLogin = false;
@@ -407,7 +478,6 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                 isLogin = true;
 
                 curUser.cloneData(handler); //从服务器端获取用户最新数据
-//                fillUserInfo();
 
         }
     }
@@ -417,33 +487,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     }
 
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case User.USER_RESPONSE:
-                    isLogin = true;
-                    String response = (String) msg.obj;
-                    curUser.convertJSON(response);
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            fillUserInfo();
-                        }
-                    });
 
-                    break;
-                case User.NET_ERROR:
-                    Toast.makeText(ClientMainActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
-                    break;
-                case User.USER_WRONG:
-                    Toast.makeText(ClientMainActivity.this, "用户信息错误，请重新登录", Toast.LENGTH_SHORT).show();
-                    isLogin = false;
-                    break;
-            }
-        }
-    };
 
     /**
      * 填充用户信息
@@ -562,5 +606,34 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         transaction.commit();
 
     }
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case User.USER_RESPONSE:
+                    isLogin = true;
+                    String response = (String) msg.obj;
+                    curUser.convertJSON(response);
+
+                    runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fillUserInfo();
+                        }
+                    });
+
+                    break;
+                case User.NET_ERROR:
+                    Toast.makeText(ClientMainActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+                case User.USER_WRONG:
+                    Toast.makeText(ClientMainActivity.this, "用户信息错误，请重新登录", Toast.LENGTH_SHORT).show();
+                    isLogin = false;
+                    break;
+            }
+        }
+    };
 
 }

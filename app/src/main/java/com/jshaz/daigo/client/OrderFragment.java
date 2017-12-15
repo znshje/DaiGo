@@ -88,10 +88,13 @@ public class OrderFragment extends Fragment {
     private NavigationView navigationView;
 
     private boolean isRefreshing = false;
+    private boolean isLoading = false;
     private boolean isLoadContent = false;
     private boolean isFirstStart = true;
 
     private Thread refreshThread;
+
+    private List<String> orderIdList = new ArrayList<>();
 
     View view = null;
 
@@ -169,13 +172,7 @@ public class OrderFragment extends Fragment {
             refreshLayout.setOnLoadListener(new PullRefreshLayout.OnLoadListener() {
                 @Override
                 public void onLoad() {
-                    new Handler().postDelayed(new Runnable() {
-                        @Override
-                        public void run() {
-                            //initOrderList();
-                            refreshLayout.setLoading(false);
-                        }
-                    }, 1000);
+                    loadOrder();
                 }
             });
 
@@ -189,6 +186,8 @@ public class OrderFragment extends Fragment {
 
 
     public void refreshOrder() {
+        orderRecyclerView.scrollToPosition(0);
+
         user.readFromLocalDatabase();
         final int campusCode = user.getCampusCode();
         refreshLayout.setRefreshing(true);
@@ -207,7 +206,8 @@ public class OrderFragment extends Fragment {
                     HttpClient httpclient = new DefaultHttpClient(httpParams);
 
                     //服务器地址，指向Servlet
-                    HttpPost httpPost = new HttpPost(ServerUtil.SLOrderList);
+                    //HttpPost httpPost = new HttpPost(ServerUtil.SLOrderList);
+                    HttpPost httpPost = new HttpPost(ServerUtil.SLOrderIDList);
 
                     List<NameValuePair> params = new ArrayList<NameValuePair>();//将数据装入list
                     params.add(new BasicNameValuePair("campusid", "" + campusCode));
@@ -220,9 +220,19 @@ public class OrderFragment extends Fragment {
                     {
                         HttpEntity entity1 = httpResponse.getEntity();
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
+
+                        orderIdList.clear();
+
+                        if (!response.equals("null")) {
+                            Scanner sc = new Scanner(response);
+                            while (sc.hasNext()) {
+                                Utility.addToFirst(orderIdList, sc.next());
+                            }
+                        }
+
                         Message message = handler.obtainMessage();
                         message.what = 0;
-                        message.obj = response;
+                        message.obj = orderIdList;
                         handler.handleMessage(message);
                     } else {
                         Message message = handler.obtainMessage();
@@ -245,6 +255,92 @@ public class OrderFragment extends Fragment {
         refreshThread.start();
     }
 
+    private void loadOrder() {
+        if (orderIdList.size() == 0) {
+            refreshLayout.setLoading(false);
+            return;
+        }
+
+        isLoading = true;
+        if (orderIdList.size() > 5) {
+            loadOrder(orderIdList.get(0), 0, 4);
+
+//            for (int i = 0; i < 5; i++) {
+//                orderIdList.remove(0);
+//            }
+        } else {
+
+            loadOrder(orderIdList.get(0), 0, orderIdList.size() - 1);
+            //orderIdList.clear();
+        }
+
+    }
+
+    private void loadOrder(final String orderId, final int cur, final int des) {
+        if (cur > des) {
+            for (int i = 0; i <= des; i++) {
+                orderIdList.remove(0);
+            }
+            Message message = new Message();
+            message.what = 2;
+            message.arg1 = cur;
+            message.arg2 = des;
+            handler.handleMessage(message);
+            return;
+        }
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                String response;
+                Looper.prepare();
+                try {
+                    BasicHttpParams httpParams = new BasicHttpParams();
+                    HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
+                    HttpConnectionParams.setSoTimeout(httpParams, 5000);
+
+                    HttpClient httpclient = new DefaultHttpClient(httpParams);
+
+                    //服务器地址，指向Servlet
+                    HttpPost httpPost = new HttpPost(ServerUtil.SLOrderList);
+//                    HttpPost httpPost = new HttpPost(ServerUtil.SLOrderIDList);
+
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();//将数据装入list
+                    params.add(new BasicNameValuePair("orderid", orderId));
+
+                    final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
+                    httpPost.setEntity(entity);
+                    //对提交数据进行编码
+                    HttpResponse httpResponse = httpclient.execute(httpPost);
+                    if(httpResponse.getStatusLine().getStatusCode()==200)//在5000毫秒之内接收到返回值
+                    {
+                        HttpEntity entity1 = httpResponse.getEntity();
+                        response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
+                        Message message = handler.obtainMessage();
+                        message.what = 2;
+                        message.obj = response;
+                        message.arg1 = cur;
+                        message.arg2 = des;
+                        handler.handleMessage(message);
+                    } else {
+                        Message message = handler.obtainMessage();
+                        message.what = 1;
+                        handler.handleMessage(message);
+                    }
+                } catch (NullPointerException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                    Message message = handler.obtainMessage();
+                    message.what = 1;
+                    handler.handleMessage(message);
+                }
+                Looper.loop();
+
+            }
+
+        }).start();
+    }
+
 
     public void setNavigationView(NavigationView navigationView) {
         this.navigationView = navigationView;
@@ -261,55 +357,124 @@ public class OrderFragment extends Fragment {
         return isRefreshing;
     }
 
+    /**
+     * 是否正在加载订单
+     */
+    public boolean isLoading() {
+        return isLoading;
+    }
+
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
-            isRefreshing = false;
+            //isRefreshing = false;
             switch (msg.what) {
                 case 0:
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            refreshLayout.setRefreshing(false);
-                        }
-                    });
-                    String json = (String) msg.obj;
+
                     getActivity().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
                             navigationView.setRedDot(false);
                         }
                     });
+
                     orderList.clear();
-                    isLoadContent = false;
+
+                    orderIdList = (List<String>) msg.obj;
+
+
+                    /**
+                     * 更新最新订单信息
+                     */
                     String latestOrderId = "";
-                    //解析JSON对象
-                    if (json != null && !json.equals("null")) {
-                        isLoadContent = true;
-                        Gson gson = new Gson();
-                        List<OrderDAO> orderDAOS = gson.fromJson(json, new TypeToken<List<OrderDAO>>()
-                            {}.getType());
-                        latestOrderId = orderDAOS.get(orderDAOS.size() - 1).getOrderId();
-                        for (OrderDAO dao : orderDAOS) {
-                            Utility.addToFirst(orderList, dao);
-                        }
+                    if (orderIdList.size() > 0) {
+                        latestOrderId = orderIdList.get(0);
+                        SharedPreferences.Editor editor = getContext().getSharedPreferences("order_cache",
+                                Context.MODE_PRIVATE).edit();
+                        editor.putString("order_id", latestOrderId);
+                        editor.apply();
+
+                        loadOrder();
+                    } else {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (isRefreshing) {
+                                    refreshLayout.setRefreshing(false);
+                                    isRefreshing = false;
+                                }
+                                adapter.notifyDataSetChanged();
+                            }
+                        });
                     }
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            adapter.setOrderList(orderList);
-                            adapter.notifyDataSetChanged();
-                        }
-                    });
-                    SharedPreferences.Editor editor = getContext().getSharedPreferences("order_cache",
-                            Context.MODE_PRIVATE).edit();
-                    editor.putString("order_id", latestOrderId);
-                    editor.apply();
+
+
 
                     break;
                 case 1:
                     Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2:
+
+                    if (msg.arg1 > msg.arg2) {
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                if (isRefreshing) {
+                                    refreshLayout.setRefreshing(false);
+                                    isRefreshing = false;
+                                }
+                                adapter.setOrderList(orderList);
+                                adapter.notifyDataSetChanged();
+                                navigationView.setRedDot(false);
+
+                                if (isLoading) {
+                                    refreshLayout.setLoading(false);
+                                }
+                                isLoading = false;
+                            }
+                        });
+
+                    } else {
+                        String json = (String) msg.obj;
+
+
+                        isLoadContent = false;
+
+                        //解析JSON对象
+                        if (json != null && !json.equals("null")) {
+                            isLoadContent = true;
+                            Gson gson = new Gson();
+                            List<OrderDAO> orderDAOS = gson.fromJson(json, new TypeToken<List<OrderDAO>>()
+                            {}.getType());
+
+                            if (orderDAOS.size() > 0) {
+                                for (OrderDAO dao : orderDAOS) {
+                                    orderList.add(dao);
+                                }
+                            } else {
+                                getActivity().runOnUiThread(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        refreshLayout.setLoading(false);
+                                        isLoading = false;
+                                    }
+                                });
+                            }
+
+
+
+                        }
+
+                        if (msg.arg1 + 1 >= orderIdList.size()) {
+                            loadOrder(orderIdList.get(msg.arg1), msg.arg1 + 1, msg.arg2);
+                        } else {
+                            loadOrder(orderIdList.get(msg.arg1 + 1), msg.arg1 + 1, msg.arg2);
+                        }
+
+                    }
+
                     break;
             }
         }

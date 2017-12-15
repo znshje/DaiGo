@@ -43,4 +43,29 @@
 
 
     </android.support.design.widget.NavigationView>
+
+    <RelativeLayout
+        android:id="@+id/express_layout"
+        android:background="#AA000000"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clickable="true">
+
+        <ImageView
+            android:id="@+id/express_0"
+            android:layout_width="200dp"
+            android:layout_height="45dp"
+            android:src="@drawable/express_0"
+            android:layout_centerHorizontal="true"
+            android:layout_alignParentBottom="true"
+            android:layout_marginBottom="50dp"/>
+        <ImageView
+            android:id="@+id/express_1"
+            android:layout_width="200dp"
+            android:layout_height="45dp"
+            android:src="@drawable/express_1"
+            android:layout_marginLeft="45dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="50dp"/>
+    </RelativeLayout>
 </android.support.v4.widget.DrawerLayout>

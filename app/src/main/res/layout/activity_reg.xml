@@ -132,21 +132,9 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:textColor="#0000FF"
-            android:text="用户服务条款"
+            android:text="用户服务条款和隐私协议"
             android:focusable="true"
             android:clickable="true"/>
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="和"/>
-        <TextView
-            android:id="@+id/reg_protocol"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textColor="#0000FF"
-            android:text="隐私协议"
-            android:clickable="true"
-            android:focusable="true"/>
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

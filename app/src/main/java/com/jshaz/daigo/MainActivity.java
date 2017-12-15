@@ -34,18 +34,27 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
             startActivity(intent);
             this.finish();
+        } else {
+            campusSetting.setCampusCode(0);
+            campusSetting.writeToLocalSharedPref();
+            Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
+            intent.putExtra("first_start", true);
+            startActivity(intent);
+            this.finish();
         }
 
+        /*
         for (int i = 0; i < 8; i++) {
             cardViews[i] = (ExtendedCardView) findViewById(Setting.getCardViewId(i));
             cardViews[i].setCampusBg(i);
             cardViews[i].setCampusName(i);
             cardViews[i].setOnClickListener(this);
         }
-
+*/
 
     }
 
+    /*
     @Override
     public void onClick(View view) {
         Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
@@ -101,6 +110,10 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         }
 
     }
+*/
 
+    @Override
+    public void onClick(View v) {
 
+    }
 }

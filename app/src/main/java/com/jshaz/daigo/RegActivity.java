@@ -73,7 +73,7 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
 
     private Thread regThread;
 
-    private TextView eula, protocol;
+    private TextView eula;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -94,10 +94,9 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
         reg = (Button) findViewById(R.id.reg_regbtn);
 
         eula = (TextView) findViewById(R.id.reg_eula);
-        protocol = (TextView) findViewById(R.id.reg_protocol);
+
 
         eula.setOnClickListener(this);
-        protocol.setOnClickListener(this);
 
         //设置按钮监听器
         getVerCode.setOnClickListener(this);
@@ -168,9 +167,6 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
                 break;
             case R.id.reg_eula:
                 startActivity(new Intent(this, EULAActivity.class));
-                break;
-            case R.id.reg_protocol:
-                startActivity(new Intent(this, ProtocolActivity.class));
                 break;
             default: break;
         }

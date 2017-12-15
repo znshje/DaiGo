@@ -37,7 +37,25 @@
         android:layout_width="match_parent"
         android:layout_weight="1"
         android:layout_height="0dp">
+        <LinearLayout
+            android:layout_above="@id/about_us_copyright"
+            android:layout_marginBottom="15dp"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true">
+
+            <TextView
+                android:id="@+id/about_us_eula"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textColor="#0000FF"
+                android:text="用户服务条款和隐私协议"
+                android:focusable="true"
+                android:clickable="true"/>
+
+        </LinearLayout>
         <TextView
+            android:id="@+id/about_us_copyright"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_centerHorizontal="true"
