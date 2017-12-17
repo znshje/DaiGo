@@ -18,6 +18,8 @@ import android.widget.ImageView;
 
 /**
  * Created by SidHu on 2016/10/16.
+ * 在200行左右被Jshaz修改过
+ * 修复了不满屏时上拉加载过于灵敏而列表不滑动的bug
  */
 public class PullRefreshLayout extends ViewGroup {
     private static final float DECELERATE_INTERPOLATION_FACTOR = 2f;
@@ -203,7 +205,7 @@ public class PullRefreshLayout extends ViewGroup {
                     }
                     //若子控件不能上下滑动，说明数据不足一屏，若不满屏不加载，返回
                     /**
-                     * Modified By Zhongli Tech
+                     * Modified By Jshaz
                      * if (!up && !down) {
                      * mIsBeingDragged = false;
                      * return false;
@@ -648,9 +650,12 @@ public class PullRefreshLayout extends ViewGroup {
         int right = getPaddingRight();
         int bottom = getPaddingBottom();
 
+
         mTarget.layout(left, top + mTarget.getTop(), left + width - right, top + height - bottom + mTarget.getTop());
         mRefreshView.layout(left, top, left + width - right, top + height - bottom);
         mLoadView.layout(left, top, left + width - right, top + height - bottom);
+
+
     }
 
     private int dp2px(int dp) {

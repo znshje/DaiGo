@@ -122,10 +122,15 @@
         <activity
             android:name=".client.MyOrderActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".EULAActivity" />
-        <activity android:name=".ProtocolActivity" />
-        <activity android:name=".client.ComplainActivity" />
-        <activity android:name=".ExpressActivity"></activity>
+        <activity
+            android:name=".EULAActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ProtocolActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".client.ComplainActivity"
+            android:screenOrientation="portrait" />
     </application>
 
 </manifest>

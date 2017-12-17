@@ -118,7 +118,12 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
     @Override
     public void onBindViewHolder(ViewHolder holder, final int position) {
 
-        order = orderList.get(position);
+        try {
+            order = orderList.get(position);
+        }  catch (IndexOutOfBoundsException e) {
+            e.printStackTrace();
+        }
+
 
         holder.infoTitle.setText(order.getTitle());
         holder.infoContent.setText(order.getPublicDetails());

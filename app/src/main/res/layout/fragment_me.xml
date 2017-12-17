@@ -48,6 +48,15 @@
         android:layout_height="wrap_content"/>
     <View
         android:layout_width="match_parent"
+        android:layout_height="10dp"
+        android:background="@color/colorWhiteDarkPrimary"/>
+
+    <com.jshaz.daigo.ui.ComplexButton
+        android:id="@+id/me_about_update"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content" />
+    <View
+        android:layout_width="match_parent"
         android:layout_height="1dp"
         android:background="@color/colorWhiteDarkPrimary"/>
 

@@ -115,6 +115,9 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
         values.put("campusidcode", campusIdCode);
         values.put("defaultaddress", defaultAddress);
         db.insert("userinfo", null, values);
+
+        db.close();
+        dbHelper.close();
     }
 
     public void writeToLocalDatabase(String userId) {
@@ -156,6 +159,9 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
         } catch (SQLiteException e) {
             e.printStackTrace();
         }
+
+        db.close();
+        dbHelper.close();
     }
 
     @Override
@@ -206,6 +212,8 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
                 }
             } while (cursor.moveToNext());
         }
+        db.close();
+        dbHelper.close();
     }
 
     @Override

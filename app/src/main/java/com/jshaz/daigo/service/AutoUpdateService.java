@@ -73,7 +73,13 @@ public class AutoUpdateService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         getCampusCode(this);
-        detectOrderUpdate();
+        /////////////////////////////////////////Debug
+        try {
+            detectOrderUpdate();
+        } catch (OutOfMemoryError e) {
+            e.printStackTrace();
+        }
+
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         int time = 2000; //每2秒自动更新一次
         long triggerAtTime = SystemClock.elapsedRealtime() + time;

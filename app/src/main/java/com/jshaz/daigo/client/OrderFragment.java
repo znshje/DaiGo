@@ -29,6 +29,7 @@ import com.jshaz.daigo.broadcasts.OrderUpdateReceiver;
 import com.jshaz.daigo.gson.OrderDAO;
 import com.jshaz.daigo.recyclerviewpack.adapter.OrderAdapter;
 import com.jshaz.daigo.serverutil.ServerUtil;
+import com.jshaz.daigo.ui.BaseFragment;
 import com.jshaz.daigo.ui.NavigationView;
 import com.jshaz.daigo.util.Order;
 import com.jshaz.daigo.util.Setting;
@@ -60,7 +61,9 @@ import java.util.Scanner;
  * Created by jshaz on 2017/11/21.
  */
 
-public class OrderFragment extends Fragment {
+public class OrderFragment extends BaseFragment {
+
+    private static final String TAG = "OrderFragment";
 
     List<OrderDAO> orderList = new ArrayList<>();
 
@@ -89,10 +92,8 @@ public class OrderFragment extends Fragment {
 
     private boolean isRefreshing = false;
     private boolean isLoading = false;
-    private boolean isLoadContent = false;
-    private boolean isFirstStart = true;
 
-    private Thread refreshThread;
+    private Thread refreshThread, loadThread;
 
     private List<String> orderIdList = new ArrayList<>();
 
@@ -136,15 +137,13 @@ public class OrderFragment extends Fragment {
     }
 
     @Override
+    public void onPause() {
+        super.onPause();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        if (isRefreshing && !isFirstStart) {
-            refreshThread.interrupt();
-            refreshOrder();
-        } else if (!isLoadContent && !isFirstStart) {
-            refreshOrder();
-        }
-        isFirstStart = false;
     }
 
     /**
@@ -233,7 +232,12 @@ public class OrderFragment extends Fragment {
                         Message message = handler.obtainMessage();
                         message.what = 0;
                         message.obj = orderIdList;
-                        handler.handleMessage(message);
+                        while (true) {
+                            if (!isPaused()) {
+                                handler.handleMessage(message);
+                                break;
+                            }
+                        }
                     } else {
                         Message message = handler.obtainMessage();
                         message.what = 1;
@@ -264,14 +268,8 @@ public class OrderFragment extends Fragment {
         isLoading = true;
         if (orderIdList.size() > 5) {
             loadOrder(orderIdList.get(0), 0, 4);
-
-//            for (int i = 0; i < 5; i++) {
-//                orderIdList.remove(0);
-//            }
         } else {
-
             loadOrder(orderIdList.get(0), 0, orderIdList.size() - 1);
-            //orderIdList.clear();
         }
 
     }
@@ -288,11 +286,14 @@ public class OrderFragment extends Fragment {
             handler.handleMessage(message);
             return;
         }
-        new Thread(new Runnable() {
+        loadThread = new Thread(new Runnable() {
             @Override
             public void run() {
                 String response;
+
                 Looper.prepare();
+
+
                 try {
                     BasicHttpParams httpParams = new BasicHttpParams();
                     HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
@@ -320,7 +321,13 @@ public class OrderFragment extends Fragment {
                         message.obj = response;
                         message.arg1 = cur;
                         message.arg2 = des;
-                        handler.handleMessage(message);
+
+                        while (true) {
+                            if (!isPaused()) {
+                                handler.handleMessage(message);
+                                break;
+                            }
+                        }
                     } else {
                         Message message = handler.obtainMessage();
                         message.what = 1;
@@ -338,7 +345,8 @@ public class OrderFragment extends Fragment {
 
             }
 
-        }).start();
+        });
+        loadThread.start();
     }
 
 
@@ -364,60 +372,52 @@ public class OrderFragment extends Fragment {
         return isLoading;
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            //isRefreshing = false;
-            switch (msg.what) {
-                case 0:
+    /**
+     * 用于异步填充订单列表
+     */
+    private void fillRefreshOrderInfo(List<String> list) {
 
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            navigationView.setRedDot(false);
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    navigationView.setRedDot(false);
+                }
+            });
+
+            orderList.clear();
+
+            orderIdList = removeSameByOrderId(list);
+
+            /**
+             * 更新最新订单信息
+             */
+            String latestOrderId = "";
+            if (orderIdList.size() > 0) {
+                latestOrderId = orderIdList.get(0);
+                SharedPreferences.Editor editor = getContext().getSharedPreferences("order_cache",
+                        Context.MODE_PRIVATE).edit();
+                editor.putString("order_id", latestOrderId);
+                editor.apply();
+
+                loadOrder();
+            } else {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        if (isRefreshing) {
+                            refreshLayout.setRefreshing(false);
+                            isRefreshing = false;
                         }
-                    });
-
-                    orderList.clear();
-
-                    orderIdList = (List<String>) msg.obj;
-
-
-                    /**
-                     * 更新最新订单信息
-                     */
-                    String latestOrderId = "";
-                    if (orderIdList.size() > 0) {
-                        latestOrderId = orderIdList.get(0);
-                        SharedPreferences.Editor editor = getContext().getSharedPreferences("order_cache",
-                                Context.MODE_PRIVATE).edit();
-                        editor.putString("order_id", latestOrderId);
-                        editor.apply();
-
-                        loadOrder();
-                    } else {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                if (isRefreshing) {
-                                    refreshLayout.setRefreshing(false);
-                                    isRefreshing = false;
-                                }
-                                adapter.notifyDataSetChanged();
-                            }
-                        });
+                        adapter.notifyDataSetChanged();
                     }
+                });
+            }
 
+    }
 
-
-                    break;
-                case 1:
-                    Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT).show();
-                    break;
-                case 2:
-
-                    if (msg.arg1 > msg.arg2) {
+    private void fillLoadOrderInfo(Message msg) {
+                if (msg.arg1 > msg.arg2) {
+                    try {
                         getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
@@ -435,46 +435,82 @@ public class OrderFragment extends Fragment {
                                 isLoading = false;
                             }
                         });
+                    } catch (NullPointerException e) {
+                        e.printStackTrace();
+                    }
 
-                    } else {
-                        String json = (String) msg.obj;
 
+                } else {
+                    String json = (String) msg.obj;
 
-                        isLoadContent = false;
+                    //解析JSON对象
+                    if (json != null && !json.equals("null")) {
+                        Gson gson = new Gson();
+                        List<OrderDAO> orderDAOS = gson.fromJson(json, new TypeToken<List<OrderDAO>>()
+                        {}.getType());
 
-                        //解析JSON对象
-                        if (json != null && !json.equals("null")) {
-                            isLoadContent = true;
-                            Gson gson = new Gson();
-                            List<OrderDAO> orderDAOS = gson.fromJson(json, new TypeToken<List<OrderDAO>>()
-                            {}.getType());
-
-                            if (orderDAOS.size() > 0) {
-                                for (OrderDAO dao : orderDAOS) {
-                                    orderList.add(dao);
-                                }
-                            } else {
-                                getActivity().runOnUiThread(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        refreshLayout.setLoading(false);
-                                        isLoading = false;
-                                    }
-                                });
+                        if (orderDAOS.size() > 0) {
+                            for (OrderDAO dao : orderDAOS) {
+                                orderList.add(dao);
                             }
-
-
-
-                        }
-
-                        if (msg.arg1 + 1 >= orderIdList.size()) {
-                            loadOrder(orderIdList.get(msg.arg1), msg.arg1 + 1, msg.arg2);
                         } else {
-                            loadOrder(orderIdList.get(msg.arg1 + 1), msg.arg1 + 1, msg.arg2);
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    refreshLayout.setLoading(false);
+                                    isLoading = false;
+                                }
+                            });
                         }
+
+
 
                     }
 
+                    if (msg.arg1 + 1 >= orderIdList.size()) {
+                        loadOrder(orderIdList.get(msg.arg1), msg.arg1 + 1, msg.arg2);
+                    } else {
+                        loadOrder(orderIdList.get(msg.arg1 + 1), msg.arg1 + 1, msg.arg2);
+                    }
+
+                }
+    }
+
+    private List<String> removeSameByOrderId(List<String> list) {
+        List<String> stringList = list;
+        int i = 0;
+        while (i < stringList.size() - 1) {
+            int j = i + 1;
+            while (j < stringList.size()) {
+                if (stringList.get(i).equals(stringList.get(j))) {
+                    stringList.remove(j);
+                } else {
+                    j++;
+                }
+            }
+            i++;
+        }
+        return stringList;
+    }
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    try {
+                        fillRefreshOrderInfo((List<String>) msg.obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
+                case 1:
+                    Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2:
+                        fillLoadOrderInfo(msg);
                     break;
             }
         }

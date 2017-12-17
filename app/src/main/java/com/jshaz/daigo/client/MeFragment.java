@@ -5,15 +5,19 @@ import android.app.Activity;
 import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Message;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -24,11 +28,21 @@ import com.jshaz.daigo.LoginActivity;
 import com.jshaz.daigo.ModifyInfoActivity;
 import com.jshaz.daigo.R;
 import com.jshaz.daigo.intents.UserIntent;
+import com.jshaz.daigo.interfaces.BaseClassImpl;
+import com.jshaz.daigo.serverutil.ServerUtil;
+import com.jshaz.daigo.service.DownloadService;
 import com.jshaz.daigo.ui.ComplexButton;
 import com.jshaz.daigo.ui.ToolBarView;
+import com.jshaz.daigo.util.AppInfo;
+import com.jshaz.daigo.util.NetThread;
 import com.jshaz.daigo.util.Setting;
 import com.jshaz.daigo.util.User;
 
+import org.apache.http.NameValuePair;
+import org.apache.http.message.BasicNameValuePair;
+
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 /**
@@ -45,6 +59,7 @@ public class MeFragment extends Fragment {
     private ComplexButton CBAboutUs;
     private ComplexButton CBReport;
     private ComplexButton CBOpenDrawer;
+    private ComplexButton CBUpdate;
 
     private Button logout;
 
@@ -52,8 +67,11 @@ public class MeFragment extends Fragment {
 
     private User user;
 
-    private Activity parentActivity;
+    private ClientMainActivity parentActivity;
     private ToolBarView toolBarView;
+
+    private ProgressDialog progressDialog;
+
 
     @Nullable
     @Override
@@ -72,6 +90,7 @@ public class MeFragment extends Fragment {
         CBReport = (ComplexButton) view.findViewById(R.id.me_report);
         CBSettings = (ComplexButton) view.findViewById(R.id.me_settings);
         CBOpenDrawer = (ComplexButton) view.findViewById(R.id.me_open_drawer);
+        CBUpdate = (ComplexButton) view.findViewById(R.id.me_about_update);
         logout = (Button) view.findViewById(R.id.me_logout);
 
 
@@ -169,6 +188,20 @@ public class MeFragment extends Fragment {
             }
         });
 
+        CBUpdate.selectType(ComplexButton.TYPE_TEXT_ONLY);
+        CBUpdate.setItemName("检查更新");
+        CBUpdate.setButtonOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                startProgressDialog();
+                List<NameValuePair> params = new ArrayList<NameValuePair>();
+                params.add(new BasicNameValuePair("type", "vercode"));
+                Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, handler,
+                        0, 1);
+                updateThread.start();
+            }
+        });
+
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -231,22 +264,26 @@ public class MeFragment extends Fragment {
         }
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case User.USER_RESPONSE:
-                    setLogin();
-                    break;
-                case User.NET_ERROR:
-                    break;
-                case User.USER_WRONG:
-                    setUnLogin();
-                    break;
-            }
+
+
+    private void startDownload(String filename) {
+        parentActivity.startDownload(ServerUtil.getDownloadUrl(filename));
+    }
+
+    private void startProgressDialog() {
+        if (progressDialog == null) {
+            progressDialog = new ProgressDialog(getContext());
         }
-    };
+        progressDialog.setMessage("正在获取信息");
+        progressDialog.setCancelable(true);
+        progressDialog.show();
+    }
+
+    private void stopProgressDialog() {
+        if (progressDialog != null && progressDialog.isShowing()) {
+            progressDialog.dismiss();
+        }
+    }
 
     /**
      * 设置未登录的View
@@ -262,7 +299,86 @@ public class MeFragment extends Fragment {
         logout.setVisibility(View.VISIBLE);
     }
 
-    public void setActivity(Activity activity) {
+    public void setActivity(ClientMainActivity activity) {
         parentActivity = activity;
     }
+
+
+    @SuppressLint("HandlerLeak")
+    Handler handler = new Handler() {
+        @Override
+        public void handleMessage(Message msg) {
+            String response = "";
+            getActivity().runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    stopProgressDialog();
+                }
+            });
+            switch (msg.what) {
+                case User.USER_RESPONSE:
+                    setLogin();
+                    break;
+                case User.NET_ERROR:
+                    break;
+                case User.USER_WRONG:
+                    setUnLogin();
+                    break;
+                case 0:
+                    response = (String) msg.obj;
+                    if (response.equals("" + AppInfo.getVersionCode(getContext()))) {
+                        Toast.makeText(parentActivity, "当前是最新版本", Toast.LENGTH_SHORT).show();
+                    } else {
+
+                        getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                startProgressDialog();
+                            }
+                        });
+
+                        List<NameValuePair> params = new ArrayList<NameValuePair>();
+                        params.add(new BasicNameValuePair("type", "logcontent"));
+                        Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, handler,
+                                2, 1);
+                        updateThread.start();
+                    }
+                    break;
+                case 1:
+
+                    break;
+                case 2:
+                    response = (String) msg.obj;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
+                    builder.setTitle("有更新可用");
+                    builder.setMessage(response);
+                    builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //获取文件名
+
+                            getActivity().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    startProgressDialog();
+                                }
+                            });
+
+                            List<NameValuePair> params = new ArrayList<NameValuePair>();
+                            params.add(new BasicNameValuePair("type", "filename"));
+                            Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, handler,
+                                    3, 1);
+                            updateThread.start();
+                        }
+                    });
+                    builder.setNegativeButton("取消", null);
+                    break;
+                case 3:
+                    response = (String) msg.obj;
+                    //开启下载服务
+                    startDownload(response);
+                    break;
+            }
+        }
+    };
 }

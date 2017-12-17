@@ -3,12 +3,15 @@ package com.jshaz.daigo.client;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.ServiceConnection;
 import android.media.Image;
 import android.os.Handler;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
@@ -35,6 +38,7 @@ import com.jshaz.daigo.broadcasts.OrderUpdateReceiver;
 import com.jshaz.daigo.intents.UserIntent;
 import com.jshaz.daigo.serverutil.ServerUtil;
 import com.jshaz.daigo.service.AutoUpdateService;
+import com.jshaz.daigo.service.DownloadService;
 import com.jshaz.daigo.ui.NavigationView;
 import com.jshaz.daigo.R;
 import com.jshaz.daigo.ui.BaseActivity;
@@ -101,6 +105,21 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     private LocalBroadcastManager localBroadcastManager;
 
 
+    private DownloadService.DownloadBinder downloadBinder;
+
+    private ServiceConnection connection = new ServiceConnection() {
+        @Override
+        public void onServiceConnected(ComponentName name, IBinder service) {
+            downloadBinder = (DownloadService.DownloadBinder) service;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName name) {
+
+        }
+    };
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -122,6 +141,8 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
          * need Debug
          */
         startExpress(getIntent().getBooleanExtra("first_start", false));
+
+        prepareDownloadService();
 
     }
 
@@ -157,6 +178,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     protected void onDestroy() {
         super.onDestroy();
         localBroadcastManager.unregisterReceiver(orderUpdateReceiver);
+        unbindService(connection);
     }
 
     /**
@@ -164,45 +186,34 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
      */
     private void startExpress(boolean b) {
         if (b) {
+            //initNavigationOnSelectedListener();
             expressLayout.setVisibility(View.VISIBLE);
             final ImageView[] imageViews = new ImageView[2];
             imageViews[0] = (ImageView) findViewById(R.id.express_0);
             imageViews[1] = (ImageView) findViewById(R.id.express_1);
 
             for (int i = 0; i < 2; i++) {
-                imageViews[i].setVisibility(View.INVISIBLE);
+                imageViews[i].setVisibility(View.GONE);
             }
             ////////////////////////////////////////
             imageViews[0].setVisibility(View.VISIBLE);
+
             expressLayout.setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View v) {
                     if (imageViews[0].getVisibility() == View.VISIBLE) {
-                        imageViews[0].setVisibility(View.INVISIBLE);
+                        imageViews[0].setVisibility(View.GONE);
                         imageViews[1].setVisibility(View.VISIBLE);
                     } else if (imageViews[1].getVisibility() == View.VISIBLE) {
                         expressLayout.setVisibility(View.GONE);
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                drawerLayout.openDrawer(GravityCompat.START);
-                            }
-                        }, 200);
-                        new Handler().postDelayed(new Runnable() {
-                            @Override
-                            public void run() {
-                                try {
-                                    drawerLayout.closeDrawers();
-                                } catch (Exception e) {
-                                    e.printStackTrace();
-                                }
-                            }
-                        }, 800);
+                        startActivity(new Intent(ClientMainActivity.this, ClientMainActivity.class));
+                        finish();
 
                     }
+
                 }
             });
-            initNavigationOnSelectedListener();
+
         } else {
             expressLayout.setVisibility(View.GONE);
         }
@@ -486,7 +497,18 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         this.isDetailActivityReturned = b;
     }
 
+    private void prepareDownloadService() {
+        Intent intent = new Intent(this, DownloadService.class);
+        startService(intent);
+        bindService(intent, connection, BIND_AUTO_CREATE);
+    }
 
+    /**
+     * 开启下载服务
+     */
+    public void startDownload(String url) {
+        downloadBinder.startDownload(url);
+    }
 
 
     /**

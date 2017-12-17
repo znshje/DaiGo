@@ -12,6 +12,8 @@ import android.widget.Toast;
  */
 
 public class BaseActivity extends AppCompatActivity {
+    //是否处于Paused状态
+    private boolean isPaused = false;
 
     private boolean isSlideExit = true;
 
@@ -27,6 +29,17 @@ public class BaseActivity extends AppCompatActivity {
     float y1 = 0;
     float y2 = 0;
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        isPaused = true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+        isPaused = false;
+    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -75,6 +88,8 @@ public class BaseActivity extends AppCompatActivity {
         isDoubleBackExit = b;
     }
 
-
+    public boolean isPaused() {
+        return isPaused;
+    }
 
 }
