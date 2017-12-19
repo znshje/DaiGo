@@ -149,7 +149,6 @@ public class ShowMyOrdersFragment extends Fragment {
     private void getOrderList() {
         setLoading(true);
         isFirstLoad = true;
-        Log.d("fragment", type + "getOrderList");
         thread = new Thread(new Runnable() {
             @Override
             public void run() {

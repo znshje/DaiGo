@@ -53,6 +53,8 @@ public class MeFragment extends Fragment {
 
     View view = null;
 
+    private boolean isUpdate = false;
+
     private ComplexButton CBModifyInfo;
     private ComplexButton CBMyOrder;
     private ComplexButton CBSettings;
@@ -201,6 +203,9 @@ public class MeFragment extends Fragment {
                 updateThread.start();
             }
         });
+        if (isUpdate) {
+            setUpdateAble();
+        }
 
         logout.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -220,12 +225,7 @@ public class MeFragment extends Fragment {
                         parentActivity.finish();
                     }
                 });
-                builder.setNegativeButton("取消", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-
-                    }
-                });
+                builder.setNegativeButton("取消", null);
                 builder.show();
 
             }
@@ -303,18 +303,30 @@ public class MeFragment extends Fragment {
         parentActivity = activity;
     }
 
+    public void setUpdateAble() {
+        CBUpdate.setRedDot(true);
+    }
+
+    public void setUpdate() {
+        isUpdate = true;
+    }
 
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            try {
+                getActivity().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        stopProgressDialog();
+                    }
+                });
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+
             String response = "";
-            getActivity().runOnUiThread(new Runnable() {
-                @Override
-                public void run() {
-                    stopProgressDialog();
-                }
-            });
             switch (msg.what) {
                 case User.USER_RESPONSE:
                     setLogin();
@@ -372,6 +384,7 @@ public class MeFragment extends Fragment {
                         }
                     });
                     builder.setNegativeButton("取消", null);
+                    builder.show();
                     break;
                 case 3:
                     response = (String) msg.obj;

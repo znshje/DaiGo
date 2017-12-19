@@ -5,12 +5,17 @@ import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Environment;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.FileProvider;
+import android.widget.Toast;
 
+import com.jshaz.daigo.BuildConfig;
 import com.jshaz.daigo.R;
 import com.jshaz.daigo.interfaces.DownloadListener;
 import com.jshaz.daigo.serverutil.DownloadTask;
@@ -19,6 +24,7 @@ import java.io.File;
 
 /**
  * Created by jshaz on 2017/12/17.
+ * 下载更新文件服务
  */
 
 public class DownloadService extends Service {
@@ -38,6 +44,7 @@ public class DownloadService extends Service {
             downloadTask = null;
             stopForeground(true);
             getNotificationManager().notify(1, getNotification("下载成功", -1));
+            openAPK();
         }
 
         @Override
@@ -50,6 +57,7 @@ public class DownloadService extends Service {
         @Override
         public void onPaused() {
             downloadTask = null;
+            Toast.makeText(DownloadService.this, "下载暂停", Toast.LENGTH_SHORT).show();
         }
 
         @Override
@@ -61,7 +69,10 @@ public class DownloadService extends Service {
 
     private DownloadBinder mBinder = new DownloadBinder();
 
-    @Nullable
+    public DownloadService() {
+        super();
+    }
+
     @Override
     public IBinder onBind(Intent intent) {
         return mBinder;
@@ -118,5 +129,30 @@ public class DownloadService extends Service {
             builder.setProgress(100, progress, false);
         }
         return builder.build();
+    }
+
+    /**
+     * 打开下载好的APK文件
+     */
+    private void openAPK() {
+        String fileName = Environment.getExternalStoragePublicDirectory(
+                Environment.DIRECTORY_DOWNLOADS).getPath() +
+                downloadUrl.substring(downloadUrl.lastIndexOf("/"));
+        Intent intent = new Intent();
+
+        intent.setAction(Intent.ACTION_VIEW);
+
+        Uri contentUri;
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+            intent.setFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            contentUri = FileProvider.getUriForFile(this, "com.jshaz.daigo.fileprovider",
+                    new File(fileName));
+        } else {
+            contentUri = Uri.fromFile(new File(fileName));
+            intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        }
+
+        intent.setDataAndType(contentUri, "application/vnd.android.package-archive");
+        startActivity(intent);
     }
 }

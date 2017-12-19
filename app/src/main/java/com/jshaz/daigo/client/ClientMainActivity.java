@@ -1,5 +1,6 @@
 package com.jshaz.daigo.client;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.AlertDialog;
 import android.content.BroadcastReceiver;
@@ -9,16 +10,20 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.ServiceConnection;
+import android.content.pm.PackageManager;
 import android.media.Image;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
 import android.support.annotation.NonNull;
+import android.support.v4.app.ActivityCompat;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.view.GravityCompat;
 import android.support.v4.widget.DrawerLayout;
@@ -39,10 +44,13 @@ import com.jshaz.daigo.intents.UserIntent;
 import com.jshaz.daigo.serverutil.ServerUtil;
 import com.jshaz.daigo.service.AutoUpdateService;
 import com.jshaz.daigo.service.DownloadService;
+import com.jshaz.daigo.ui.MyApplication;
 import com.jshaz.daigo.ui.NavigationView;
 import com.jshaz.daigo.R;
 import com.jshaz.daigo.ui.BaseActivity;
 import com.jshaz.daigo.ui.ToolBarView;
+import com.jshaz.daigo.util.AppInfo;
+import com.jshaz.daigo.util.NetThread;
 import com.jshaz.daigo.util.Setting;
 import com.jshaz.daigo.util.User;
 import com.jshaz.daigo.util.Utility;
@@ -106,7 +114,6 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
 
 
     private DownloadService.DownloadBinder downloadBinder;
-
     private ServiceConnection connection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
@@ -144,6 +151,8 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
 
         prepareDownloadService();
 
+        checkUpdate();
+
     }
 
     @Override
@@ -178,7 +187,19 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     protected void onDestroy() {
         super.onDestroy();
         localBroadcastManager.unregisterReceiver(orderUpdateReceiver);
-        unbindService(connection);
+        getApplicationContext().unbindService(connection);
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        switch (requestCode) {
+            case 1:
+                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
+                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                    finish();
+                }
+                break;
+        }
     }
 
     /**
@@ -500,7 +521,12 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     private void prepareDownloadService() {
         Intent intent = new Intent(this, DownloadService.class);
         startService(intent);
-        bindService(intent, connection, BIND_AUTO_CREATE);
+        getApplicationContext().bindService(intent, connection, BIND_AUTO_CREATE);
+        if (ContextCompat.checkSelfPermission(ClientMainActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new
+                    String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
+        }
     }
 
     /**
@@ -629,6 +655,16 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
 
     }
 
+    /**
+     * 检查是否有更新
+     */
+    private void checkUpdate() {
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("type", "vercode"));
+        ServerUtil.getThread(ServerUtil.SLUpdate, params, handler,
+                0, 1).start();
+    }
+
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
@@ -653,6 +689,13 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                 case User.USER_WRONG:
                     Toast.makeText(ClientMainActivity.this, "用户信息错误，请重新登录", Toast.LENGTH_SHORT).show();
                     isLogin = false;
+                    break;
+                case 0:
+                    response = (String) msg.obj;
+                    if (!response.equals("" + AppInfo.getVersionCode(
+                            ClientMainActivity.this))) {
+                        meFragment.setUpdate();
+                    }
                     break;
             }
         }

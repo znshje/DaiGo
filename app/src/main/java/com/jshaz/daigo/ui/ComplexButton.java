@@ -2,6 +2,7 @@ package com.jshaz.daigo.ui;
 
 import android.content.Context;
 import android.graphics.Bitmap;
+import android.provider.ContactsContract;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
@@ -29,6 +30,7 @@ public class ComplexButton extends LinearLayout {
     private CircleImageView circleImageView;
     private TextView itemName;
     private TextView detail;
+    private ImageView redDot;
 
     public static final int TYPE_TEXT_ONLY = 0;
     public static final int TYPE_IMAGE_ROUND = 1;
@@ -42,6 +44,9 @@ public class ComplexButton extends LinearLayout {
         circleImageView = (CircleImageView) findViewById(R.id.complex_button_item_image);
         itemName = (TextView) findViewById(R.id.complex_button_item_name);
         detail = (TextView) findViewById(R.id.complex_button_item_detail);
+        redDot = (ImageView) findViewById(R.id.complex_button_red_dot);
+
+        redDot.setVisibility(GONE);
 
         setButtonClickable(true);
         button.setLongClickable(true);
@@ -104,5 +109,13 @@ public class ComplexButton extends LinearLayout {
 
     public void setImageOnClickListener(OnClickListener onClickListener) {
         circleImageView.setOnClickListener(onClickListener);
+    }
+
+    public void setRedDot(boolean b) {
+        if (b) {
+            redDot.setVisibility(VISIBLE);
+        } else {
+            redDot.setVisibility(GONE);
+        }
     }
 }

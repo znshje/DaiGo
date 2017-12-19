@@ -10,6 +10,7 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
@@ -18,6 +19,7 @@ import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
+import android.view.MotionEvent;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Toast;
@@ -31,6 +33,7 @@ import com.jshaz.daigo.recyclerviewpack.adapter.OrderAdapter;
 import com.jshaz.daigo.serverutil.ServerUtil;
 import com.jshaz.daigo.ui.BaseFragment;
 import com.jshaz.daigo.ui.NavigationView;
+import com.jshaz.daigo.ui.ScrollLinearLayoutManager;
 import com.jshaz.daigo.util.Order;
 import com.jshaz.daigo.util.Setting;
 import com.jshaz.daigo.util.Utility;
@@ -71,6 +74,8 @@ public class OrderFragment extends BaseFragment {
 
     RecyclerView orderRecyclerView;
 
+    ScrollLinearLayoutManager linearLayoutManager;
+
     public PullRefreshLayout refreshLayout;
 
     /*本地广播组件*/
@@ -95,6 +100,7 @@ public class OrderFragment extends BaseFragment {
 
     private Thread refreshThread, loadThread;
 
+    //记录待加载的订单ID
     private List<String> orderIdList = new ArrayList<>();
 
     View view = null;
@@ -155,8 +161,8 @@ public class OrderFragment extends BaseFragment {
         adapter.setUserId(user.getUserId());
         adapter.setParentActivity((ClientMainActivity) getActivity());
         adapter.setParentFragment(this);
-        LinearLayoutManager manager = new LinearLayoutManager(getContext());
-        orderRecyclerView.setLayoutManager(manager);
+        linearLayoutManager = new ScrollLinearLayoutManager(getContext());
+        orderRecyclerView.setLayoutManager(linearLayoutManager);
         orderRecyclerView.setAdapter(adapter);
         //orderRecyclerView.setItemAnimator(new DefaultItemAnimator());
 
@@ -186,6 +192,7 @@ public class OrderFragment extends BaseFragment {
 
     public void refreshOrder() {
         orderRecyclerView.scrollToPosition(0);
+//        orderRecyclerView.setNestedScrollingEnabled(false);
 
         user.readFromLocalDatabase();
         final int campusCode = user.getCampusCode();
@@ -381,10 +388,12 @@ public class OrderFragment extends BaseFragment {
                 @Override
                 public void run() {
                     navigationView.setRedDot(false);
+                    int preSize = orderList.size();
+                    orderList.clear();
+                    //此处被优化，修复了刷新时移动列表造成的崩溃
+                    adapter.notifyItemRangeRemoved(0, preSize);
                 }
             });
-
-            orderList.clear();
 
             orderIdList = removeSameByOrderId(list);
 
@@ -408,14 +417,13 @@ public class OrderFragment extends BaseFragment {
                             refreshLayout.setRefreshing(false);
                             isRefreshing = false;
                         }
-                        adapter.notifyDataSetChanged();
+                        adapter.notifyItemRangeRemoved(0, 0);
                     }
                 });
             }
 
     }
-
-    private void fillLoadOrderInfo(Message msg) {
+    private void fillLoadOrderInfo(final Message msg) {
                 if (msg.arg1 > msg.arg2) {
                     try {
                         getActivity().runOnUiThread(new Runnable() {
@@ -426,8 +434,12 @@ public class OrderFragment extends BaseFragment {
                                     isRefreshing = false;
                                 }
                                 adapter.setOrderList(orderList);
-                                adapter.notifyDataSetChanged();
+                                int startPos = adapter.getItemCount();
+                                adapter.notifyItemRangeInserted(startPos, orderList.size());
                                 navigationView.setRedDot(false);
+
+                                //滑动到下一个
+                                orderRecyclerView.scrollToPosition(orderList.size() - msg.arg2 - 1);
 
                                 if (isLoading) {
                                     refreshLayout.setLoading(false);
@@ -493,6 +505,10 @@ public class OrderFragment extends BaseFragment {
         return stringList;
     }
 
+    private static void forceStopRecyclerViewScroll(RecyclerView mRecyclerView) {
+        mRecyclerView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
+    }
+
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
@@ -500,6 +516,7 @@ public class OrderFragment extends BaseFragment {
             switch (msg.what) {
                 case 0:
                     try {
+//                        orderRecyclerView.setNestedScrollingEnabled(true);
                         fillRefreshOrderInfo((List<String>) msg.obj);
                     } catch (Exception e) {
                         e.printStackTrace();

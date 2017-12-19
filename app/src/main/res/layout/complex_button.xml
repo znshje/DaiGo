@@ -24,7 +24,15 @@
             android:layout_marginBottom="10dp"
             android:layout_centerVertical="true"
             android:textAppearance="@style/Base.Widget.AppCompat.Button.Small"
-            android:textSize="20sp"/>
+            android:textSize="18sp"/>
+        <ImageView
+            android:id="@+id/complex_button_red_dot"
+            android:layout_width="8dp"
+            android:layout_height="8dp"
+            android:src="@mipmap/icon_red_dot"
+            android:layout_toRightOf="@id/complex_button_item_name"
+            android:layout_marginTop="13dp"
+            android:layout_marginLeft="3dp"/>
         <de.hdodenhof.circleimageview.CircleImageView
             android:id="@+id/complex_button_item_image"
             android:layout_marginTop="10dp"
