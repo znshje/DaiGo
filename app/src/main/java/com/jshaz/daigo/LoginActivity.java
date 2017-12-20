@@ -35,6 +35,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -64,6 +65,8 @@ public class LoginActivity extends BaseActivity {
     private NetWorkStateReceiver netWorkStateReceiver = new NetWorkStateReceiver(this);
 
     private Thread checkThread;
+
+    private MyHandler handler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -198,36 +201,7 @@ public class LoginActivity extends BaseActivity {
         checkThread.start();
     }
 
-    @SuppressLint("HandlerLeak")
-    private Handler handler = new Handler() {
-        public void handleMessage(Message msg) {
 
-            switch (msg.what){
-                case 0:
-                    String response = (String) msg.obj;
-                    if (response.equals("")) {
-                        Toast.makeText(LoginActivity.this,"连接超时",Toast.LENGTH_SHORT).show();
-                        stopLoginDialog();
-                    } else {
-                        stopLoginDialog();
-                        if (response.equals("false")){
-                            Toast.makeText(LoginActivity.this, "手机号或密码错误", Toast.LENGTH_SHORT).show();
-                        } else {
-                            LoginMoudle(response);
-                        }
-
-                    }
-                    break;
-                case 1:
-                    Toast.makeText(LoginActivity.this,"连接超时",Toast.LENGTH_SHORT).show();
-                    stopLoginDialog();
-                    break;
-                default:
-                    break;
-            }
-
-        }
-    };
 
     private void LoginMoudle(String response) {
         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
@@ -276,5 +250,41 @@ public class LoginActivity extends BaseActivity {
     protected void onDestroy() {
         super.onDestroy();
         unregisterReceiver(netWorkStateReceiver);
+    }
+
+    private static class MyHandler extends Handler {
+        WeakReference<LoginActivity> activityWeakReference;
+
+        public MyHandler(LoginActivity activity) {
+            this.activityWeakReference = new WeakReference<LoginActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            LoginActivity activity = activityWeakReference.get();
+            switch (msg.what){
+                case 0:
+                    String response = (String) msg.obj;
+                    if (response.equals("")) {
+                        Toast.makeText(activity,"连接超时",Toast.LENGTH_SHORT).show();
+                        activity.stopLoginDialog();
+                    } else {
+                        activity.stopLoginDialog();
+                        if (response.equals("false")){
+                            Toast.makeText(activity, "手机号或密码错误", Toast.LENGTH_SHORT).show();
+                        } else {
+                            activity.LoginMoudle(response);
+                        }
+
+                    }
+                    break;
+                case 1:
+                    Toast.makeText(activity,"连接超时",Toast.LENGTH_SHORT).show();
+                    activity.stopLoginDialog();
+                    break;
+                default:
+                    break;
+            }
+        }
     }
 }

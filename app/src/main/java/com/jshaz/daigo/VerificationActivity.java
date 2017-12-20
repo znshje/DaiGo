@@ -49,6 +49,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -84,6 +85,8 @@ public class VerificationActivity extends BaseActivity {
 
     private UserIntent userIntent;
 
+    private MyHandler mHandler;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -92,6 +95,8 @@ public class VerificationActivity extends BaseActivity {
         userIntent = (UserIntent) getIntent().getSerializableExtra("user");
 
         initView();
+
+        mHandler = new MyHandler(this);
 
         initImageFile();
         initPop();
@@ -406,7 +411,7 @@ public class VerificationActivity extends BaseActivity {
                         response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
                         Message message = mHandler.obtainMessage();
                             message.what = 0;
-                            //message.obj = response;
+                            message.obj = response;
                             mHandler.handleMessage(message);
                     } else {
                         Message message = mHandler.obtainMessage();
@@ -448,20 +453,32 @@ public class VerificationActivity extends BaseActivity {
         }
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
+    private static class MyHandler extends Handler {
+
+        WeakReference<VerificationActivity> activityWeakReference;
+
+        public MyHandler(VerificationActivity activity) {
+            this.activityWeakReference = new WeakReference<VerificationActivity>(activity);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            stopUploadDialog();
+            activityWeakReference.get().stopUploadDialog();
             switch (msg.what) {
                 case 0:
-                    Toast.makeText(VerificationActivity.this, "上传成功", Toast.LENGTH_SHORT).show();
-                    finish();
+                    String response = (String) msg.obj;
+                    if (response.equals("false")) {
+                        Toast.makeText(activityWeakReference.get(), "该身份信息已被认证\n无法重新认证", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(activityWeakReference.get(), "上传成功", Toast.LENGTH_SHORT).show();
+                        activityWeakReference.get().finish();
+                    }
                     break;
                 case 1:
-                    Toast.makeText(VerificationActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activityWeakReference.get(), "网络错误", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
-    };
+    }
+
 }

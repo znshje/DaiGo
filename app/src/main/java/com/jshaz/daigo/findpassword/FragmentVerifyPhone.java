@@ -24,6 +24,7 @@ import com.mob.MobSDK;
 
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.Scanner;
 
 import cn.smssdk.EventHandler;
@@ -56,6 +57,8 @@ public class FragmentVerifyPhone extends Fragment implements View.OnClickListene
 
     private final int SLIDE_FROM_LEFT_TO_RIGHT = 0;//从左向右滑动页面的动画代码
     private final int SLIDE_FROM_RIGHT_TO_LEFT = 1;//从右向左滑动页面的动画代码
+
+    private MyHandler mHandler = new MyHandler(this);
 
     View view = null;
 
@@ -116,71 +119,13 @@ public class FragmentVerifyPhone extends Fragment implements View.OnClickListene
         }
     }
 
-    /**
-     * 处理验证码请求，具体返回Mob封装信息
-     */
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            int event = msg.arg1;
-            int result = msg.arg2;
-            Object data = msg.obj;
 
-            if (result == SMSSDK.RESULT_COMPLETE) {
-                //正确进行
-                if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                    //获取验证码
-                    Message uiMsg = new Message();
-                    uiMsg.what = 0;
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(getContext(), "验证码已发送",
-                                    Toast.LENGTH_SHORT).show();
-                            startVerCodeCountDown();
-                        }
-                    });
+    @Override
+    public void onStop() {
+        super.onStop();
+        SMSSDK.unregisterEventHandler(eventHandler);
+    }
 
-                } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
-                    //验证码正确
-                    checkVerCode = true;
-                    stopVerifyUIDialog();
-                    getActivity().runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            fragmentResetPassword.setFindPhone(editPhone.getText().toString());
-                            replaceFragment(fragmentResetPassword, SLIDE_FROM_RIGHT_TO_LEFT);
-                        }
-                    });
-                }
-
-            } else {
-                //出现异常
-                int status = 0;
-                stopVerifyUIDialog();
-                try{
-                    ((Throwable) data).printStackTrace();
-                    Throwable throwable = (Throwable) data;
-
-                    JSONObject object = new JSONObject(throwable.getMessage());
-                    final String des = object.optString("detail");
-                    status = object.optInt("status");
-                    if (!TextUtils.isEmpty(des)) {
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(getContext(), des, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                } catch (Exception e) {
-                    SMSLog.getInstance().w(e);
-                }
-            }
-        }
-    };
 
 
     /**
@@ -278,9 +223,74 @@ public class FragmentVerifyPhone extends Fragment implements View.OnClickListene
         }
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        SMSSDK.unregisterEventHandler(eventHandler);
+
+    private static class MyHandler extends Handler {
+        WeakReference<FragmentVerifyPhone> fragmentVerifyPhoneWeakReference;
+
+        public MyHandler(FragmentVerifyPhone fragmentVerifyPhone) {
+            this.fragmentVerifyPhoneWeakReference = new
+                    WeakReference<FragmentVerifyPhone>(fragmentVerifyPhone);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final FragmentVerifyPhone fragment = fragmentVerifyPhoneWeakReference.get();
+            int event = msg.arg1;
+            int result = msg.arg2;
+            Object data = msg.obj;
+
+            if (result == SMSSDK.RESULT_COMPLETE) {
+                //正确进行
+                if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
+                    //获取验证码
+                    Message uiMsg = new Message();
+                    uiMsg.what = 0;
+                    fragment.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(fragment.getContext(), "验证码已发送",
+                                    Toast.LENGTH_SHORT).show();
+                            fragment.startVerCodeCountDown();
+                        }
+                    });
+
+                } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    //验证码正确
+                    fragment.checkVerCode = true;
+                    fragment.stopVerifyUIDialog();
+                    fragment.getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            fragment.fragmentResetPassword.setFindPhone(fragment.editPhone.getText().toString());
+                            fragment.replaceFragment(fragment.fragmentResetPassword, fragment.SLIDE_FROM_RIGHT_TO_LEFT);
+                        }
+                    });
+                }
+
+            } else {
+                //出现异常
+                int status = 0;
+                fragment.stopVerifyUIDialog();
+                try{
+                    ((Throwable) data).printStackTrace();
+                    Throwable throwable = (Throwable) data;
+
+                    JSONObject object = new JSONObject(throwable.getMessage());
+                    final String des = object.optString("detail");
+                    status = object.optInt("status");
+                    if (!TextUtils.isEmpty(des)) {
+                        fragment.getActivity().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                Toast.makeText(fragment.getContext(), des, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                } catch (Exception e) {
+                    SMSLog.getInstance().w(e);
+                }
+            }
+        }
     }
 }

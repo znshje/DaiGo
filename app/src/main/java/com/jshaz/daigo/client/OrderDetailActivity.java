@@ -44,6 +44,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -98,6 +99,8 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
     private Thread getInfoThread;
 
     private ScrollView scrollView;
+
+    private MyHandler handler = new MyHandler(this);
 
     /**
      * 打开方式
@@ -668,6 +671,145 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
         }
     }
 
+    private static class MyHandler extends Handler {
+        WeakReference<OrderDetailActivity> activityWeakReference;
+        public MyHandler(OrderDetailActivity activity) {
+            this.activityWeakReference = new WeakReference<OrderDetailActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final OrderDetailActivity activity = activityWeakReference.get();
+            String response = (String) msg.obj;
+            activity.stopGetDataDialog();
+            activity.stopProgressDialog();
+            switch (msg.what) {
+                case Order.ORDER_RESPONSE:
+
+                    activity.order.convertJSON(response);
+                    if (activity.order.getOrderState() == Order.NORMAL) {
+                        //填充订单信息
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.fillOrderInfo();
+                            }
+                        });
+                    } else if (activity.order.getOrderState() == Order.INVALIDATE){
+                        //从接单大厅打开
+                        if (activity.openMethod == 0) {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(activity, "此订单无法查看", Toast.LENGTH_SHORT).show();
+                                    activity.finish();
+                                }
+                            });
+                        } else {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    activity.fillOrderInfo();
+                                }
+                            });
+                        }
+
+                    } else if (activity.order.getOrderState() == Order.COMPLETE) {
+                        //从接单大厅打开
+                        if (activity.openMethod == 0) {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(activity, "此订单无法查看", Toast.LENGTH_SHORT).show();
+                                    activity.finish();
+                                }
+                            });
+                        } else {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    activity.fillOrderInfo();
+                                }
+                            });
+                        }
+                    } else if (activity.order.getOrderState() == Order.RECEIVED) {
+                        //从接单大厅打开
+                        if (activity.openMethod == 0) {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    Toast.makeText(activity, "此订单无法查看", Toast.LENGTH_SHORT).show();
+                                    activity.finish();
+                                }
+                            });
+                        } else {
+                            activity.runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    activity.fillOrderInfo();
+                                }
+                            });
+                        }
+                    }
+
+                    break;
+                case User.NET_ERROR:
+                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+                case 0:
+                    Toast.makeText(activity, "取消成功", Toast.LENGTH_SHORT).show();
+                    activity.returnResult();
+                    activity.finish();
+                    break;
+                case 1:
+                    response = (String) msg.obj;
+                    if (response.equals("true")) {
+                        AlertDialog.Builder info = new AlertDialog.Builder(activity);
+                        info.setMessage("您已接单。请在规定时间内配送完毕。");
+                        info.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                            @Override
+                            public void onClick(DialogInterface dialogInterface, int i) {
+                                activity.returnResult();
+                                activity.finish();
+                            }
+                        });
+                        info.show();
+                    } else {
+                        Toast.makeText(activity, "接单错误", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case 2:
+                    response = (String) msg.obj;
+                    if (response.equals("true")) {
+                        activity.acceptOrder();
+                    } else {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder builder = new
+                                        AlertDialog.Builder(activity);
+                                builder.setMessage("您需要先前往“我的-修改个人资料-身份认证”进行身份认证后才可以接单。");
+                                builder.setPositiveButton("确定", null);
+                                builder.show();
+                            }
+                        });
+                    }
+                    break;
+                case 3:
+                    response = (String) msg.obj;
+                    if (response.equals("true")) {
+                        Toast.makeText(activity, "订单已完成", Toast.LENGTH_SHORT).show();
+                        activity.returnResult();
+                        activity.finish();
+                    } else {
+                        Toast.makeText(activity, "未知错误。无法完成订单", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+            }
+        }
+    }
+
+    /*
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
@@ -800,5 +942,6 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
             }
         }
     };
+    */
 
 }

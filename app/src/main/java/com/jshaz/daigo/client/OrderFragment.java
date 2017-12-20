@@ -56,6 +56,7 @@ import org.json.JSONArray;
 
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -102,6 +103,8 @@ public class OrderFragment extends BaseFragment {
 
     //记录待加载的订单ID
     private List<String> orderIdList = new ArrayList<>();
+
+    private MyHandler handler = new MyHandler(this);
 
     View view = null;
 
@@ -509,6 +512,36 @@ public class OrderFragment extends BaseFragment {
         mRecyclerView.dispatchTouchEvent(MotionEvent.obtain(SystemClock.uptimeMillis(), SystemClock.uptimeMillis(), MotionEvent.ACTION_CANCEL, 0, 0, 0));
     }
 
+    private static class MyHandler extends Handler {
+
+        WeakReference<OrderFragment> fragmentWeakReference;
+
+        public MyHandler(OrderFragment fragment) {
+            this.fragmentWeakReference = new WeakReference<OrderFragment>(fragment);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    try {
+                        fragmentWeakReference.get().fillRefreshOrderInfo((List<String>) msg.obj);
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                    }
+
+                    break;
+                case 1:
+                    Toast.makeText(fragmentWeakReference.get().getContext(), "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2:
+                    fragmentWeakReference.get().fillLoadOrderInfo(msg);
+                    break;
+            }
+        }
+    }
+
+    /*
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
@@ -516,7 +549,6 @@ public class OrderFragment extends BaseFragment {
             switch (msg.what) {
                 case 0:
                     try {
-//                        orderRecyclerView.setNestedScrollingEnabled(true);
                         fillRefreshOrderInfo((List<String>) msg.obj);
                     } catch (Exception e) {
                         e.printStackTrace();
@@ -532,6 +564,6 @@ public class OrderFragment extends BaseFragment {
             }
         }
     };
-
+*/
 
 }

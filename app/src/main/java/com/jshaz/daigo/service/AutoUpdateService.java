@@ -1,6 +1,7 @@
 package com.jshaz.daigo.service;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.AlarmManager;
 import android.app.PendingIntent;
 import android.app.Service;
@@ -34,6 +35,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -49,6 +51,13 @@ public class AutoUpdateService extends Service {
 
     private LocalBroadcastManager localBroadcastManager;
 
+    private Setting setting;
+
+    private Context mContext;
+
+    private Thread detectThread;
+
+
     public AutoUpdateService() {
         super();
     }
@@ -60,9 +69,6 @@ public class AutoUpdateService extends Service {
         mContext = this;
     }
 
-    private Setting setting;
-
-    private Context mContext;
 
     @Nullable
     @Override
@@ -73,20 +79,14 @@ public class AutoUpdateService extends Service {
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         getCampusCode(this);
-        /////////////////////////////////////////Debug
-        try {
-            detectOrderUpdate();
-        } catch (OutOfMemoryError e) {
-            e.printStackTrace();
-        }
-
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        int time = 2000; //每2秒自动更新一次
-        long triggerAtTime = SystemClock.elapsedRealtime() + time;
-        Intent sIntent = new Intent(this, AutoUpdateService.class);
-        PendingIntent pi = PendingIntent.getService(this, 0, sIntent, 0);
-        alarmManager.cancel(pi);
-        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+        detectOrderUpdate();
+//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+//        int time = 2000; //每2秒自动更新一次
+//        long triggerAtTime = SystemClock.elapsedRealtime() + time;
+//        Intent sIntent = new Intent(this, AutoUpdateService.class);
+//        PendingIntent pi = PendingIntent.getService(this, 0, sIntent, 0);
+//        alarmManager.cancel(pi);
+//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -108,80 +108,78 @@ public class AutoUpdateService extends Service {
         campusCode = setting.getCampusCode();
     }
 
+    private void prepareThread() {
+        List<NameValuePair> params = new ArrayList<NameValuePair>();
+        params.add(new BasicNameValuePair("campusid", "" + campusCode));
+
+    }
+
     /**
      * 检测订单是否更新
      */
     private void detectOrderUpdate() {
         getLatestOrderId();
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                Looper.prepare();
-                String response = "";
-                try {
-                    BasicHttpParams httpParams = new BasicHttpParams();
-                    HttpConnectionParams.setConnectionTimeout(httpParams, 500);
-                    HttpConnectionParams.setSoTimeout(httpParams, 500);
+        if (detectThread == null) {
+            detectThread = new Thread(new Runnable() {
+                @Override
+                public void run() {
+                    String response = "";
+                    while (true) {
+                        try {
+                            BasicHttpParams httpParams = new BasicHttpParams();
+                            HttpConnectionParams.setConnectionTimeout(httpParams, 500);
+                            HttpConnectionParams.setSoTimeout(httpParams, 500);
 
-                    HttpClient httpclient = new DefaultHttpClient(httpParams);
+                            HttpClient httpclient = new DefaultHttpClient(httpParams);
 
-                    //服务器地址，指向Servlet
-                    HttpPost httpPost = new HttpPost(ServerUtil.SLOrderIDQuery);
+                            //服务器地址，指向Servlet
+                            HttpPost httpPost = new HttpPost(ServerUtil.SLOrderIDQuery);
 
-                    List<NameValuePair> params = new ArrayList<NameValuePair>();//将数据装入list
-                    params.add(new BasicNameValuePair("campusid", "" + campusCode));
+                            List<NameValuePair> params = new ArrayList<NameValuePair>();//将数据装入list
+                            params.add(new BasicNameValuePair("campusid", "" + campusCode));
 
-                    final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
-                    httpPost.setEntity(entity);
-                    //对提交数据进行编码
-                    HttpResponse httpResponse = httpclient.execute(httpPost);
-                    if (httpResponse.getStatusLine().getStatusCode() == 200)//在500毫秒之内接收到返回值
-                    {
-                        HttpEntity entity1 = httpResponse.getEntity();
-                        response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
-                        Message message = handler.obtainMessage();
+                            final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
+                            httpPost.setEntity(entity);
+                            //对提交数据进行编码
+                            HttpResponse httpResponse = httpclient.execute(httpPost);
+                            if (httpResponse.getStatusLine().getStatusCode() == 200)//在500毫秒之内接收到返回值
+                            {
+                                HttpEntity entity1 = httpResponse.getEntity();
+                                response = EntityUtils.toString(entity1, "utf-8");//以UTF-8格式解析
 
-                            message.what = 0;
-                            message.obj = response;
-                            handler.handleMessage(message);
+                                if (!response.equals(latestOrderId) && !response.equals("null") &&
+                                        !response.equals("")) {
 
+                                    latestOrderId = response;
+
+                                    if (localBroadcastManager == null) {
+                                        localBroadcastManager = LocalBroadcastManager.
+                                                getInstance(mContext);
+                                    }
+                                    Intent intent = new Intent("com.jshaz.daigo.UPDATE_ORDER");
+                                    localBroadcastManager.sendBroadcast(intent);
+                                }
+
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+
+                        } finally {
+                            try {
+                                Thread.sleep(2000);
+                            } catch (InterruptedException e) {
+                                e.printStackTrace();
+                            }
+                        }
                     }
-                } catch (Exception e) {
-                    e.printStackTrace();
 
                 }
-                Looper.loop();
-            }
-        }).start();
-    }
-
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    //返回最新订单号
-                    String response = (String) msg.obj;
-                    if (!response.equals(latestOrderId) && !response.equals("null") &&
-                            !response.equals("")) {
-//                        SharedPreferences.Editor editor = mContext.
-//                                getSharedPreferences("order_cache", MODE_PRIVATE).edit();
-//                        editor.putString("order_id", response);
-//                        editor.apply();
-                        latestOrderId = response;
-
-                        if (localBroadcastManager == null) {
-                            localBroadcastManager = LocalBroadcastManager.
-                                    getInstance(mContext);
-                        }
-                        Intent intent = new Intent("com.jshaz.daigo.UPDATE_ORDER");
-                        localBroadcastManager.sendBroadcast(intent);
-                    }
-                    break;
-            }
+            });
         }
-    };
+
+            detectThread.start();
+
+    }
 
 
 }

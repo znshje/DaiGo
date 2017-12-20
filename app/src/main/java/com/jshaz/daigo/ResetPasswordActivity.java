@@ -37,6 +37,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.LoggingPermission;
@@ -56,6 +57,8 @@ public class ResetPasswordActivity extends BaseActivity {
     private Thread applyThread;
 
     private UserIntent userIntent;
+
+    private MyHandler mHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -214,31 +217,6 @@ public class ResetPasswordActivity extends BaseActivity {
     }
 
 
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    stopDialog();
-                    String response = (String) msg.obj;
-                    if (response.equals("true")) {
-                        Toast.makeText(ResetPasswordActivity.this, "修改成功", Toast.LENGTH_SHORT).show();
-                        passResult(ETNewPassword.getText().toString());
-                    } else {
-                        Toast.makeText(ResetPasswordActivity.this, "原密码错误", Toast.LENGTH_SHORT).show();
-                    }
-
-                    break;
-                case 2:
-                    stopDialog();
-                    Toast.makeText(ResetPasswordActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
-                    break;
-
-            }
-        }
-    };
-
     /**
      * 检查密码格式
      * @return
@@ -266,6 +244,36 @@ public class ResetPasswordActivity extends BaseActivity {
     private void stopDialog() {
         if (applyDialog != null) {
             applyDialog.dismiss();
+        }
+    }
+
+    private static class MyHandler extends Handler {
+        WeakReference<ResetPasswordActivity> activityWeakReference;
+        public MyHandler(ResetPasswordActivity activity) {
+            this.activityWeakReference = new WeakReference<ResetPasswordActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final ResetPasswordActivity activity = activityWeakReference.get();
+            switch (msg.what) {
+                case 0:
+                    activity.stopDialog();
+                    String response = (String) msg.obj;
+                    if (response.equals("true")) {
+                        Toast.makeText(activity, "修改成功", Toast.LENGTH_SHORT).show();
+                        activity.passResult(activity.ETNewPassword.getText().toString());
+                    } else {
+                        Toast.makeText(activity, "原密码错误", Toast.LENGTH_SHORT).show();
+                    }
+
+                    break;
+                case 2:
+                    activity.stopDialog();
+                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+
+            }
         }
     }
 }

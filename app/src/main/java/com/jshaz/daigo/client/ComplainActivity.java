@@ -33,6 +33,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -47,6 +48,8 @@ public class ComplainActivity extends AppCompatActivity implements View.OnClickL
     private String orderId;
 
     private ProgressDialog progressDialog;
+
+    private MyHandler handler = new MyHandler(this);
 
 
 
@@ -165,27 +168,35 @@ public class ComplainActivity extends AppCompatActivity implements View.OnClickL
         }
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler {
+
+        WeakReference<ComplainActivity> activityWeakReference;
+
+        public MyHandler(ComplainActivity activity) {
+            this.activityWeakReference = new WeakReference<ComplainActivity>(activity);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            stopProgressDialog();
+            final ComplainActivity activity = activityWeakReference.get();
+            activity.stopProgressDialog();
             switch (msg.what) {
                 case 0:
-                    AlertDialog.Builder builder = new AlertDialog.Builder(ComplainActivity.this);
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activity);
                     builder.setMessage("投诉已提交。我们将会尽快处理您的投诉。");
                     builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
-                            finish();
+                            activity.finish();
                         }
                     });
                     builder.show();
                     break;
                 case 1:
-                    Toast.makeText(ComplainActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
-    };
+    }
+
 }

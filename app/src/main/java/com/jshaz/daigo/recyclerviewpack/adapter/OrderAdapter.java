@@ -42,6 +42,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -67,12 +68,15 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     private OrderFragment parentFragment;
 
+    private MyHandler handler = new MyHandler(this);
+
     public OrderFragment getParentFragment() {
         return parentFragment;
     }
 
     public void setParentFragment(OrderFragment parentFragment) {
         this.parentFragment = parentFragment;
+        handler.setFragmentWeakReference(parentFragment);
     }
 
     public ClientMainActivity getParentActivity() {
@@ -81,6 +85,7 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
 
     public void setParentActivity(ClientMainActivity parentActivity) {
         this.parentActivity = parentActivity;
+        handler.setActivityWeakReference(parentActivity);
     }
 
     public String getUserId() {
@@ -323,58 +328,77 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         }).start();
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
+
+    @Override
+    public int getItemCount() {
+        return orderList.size();
+    }
+
+    private static class MyHandler extends Handler {
+        WeakReference<ClientMainActivity> activityWeakReference;
+        WeakReference<OrderFragment> fragmentWeakReference;
+        WeakReference<OrderAdapter> adapterWeakReference;
+
+        public MyHandler(OrderAdapter adapter) {
+            this.adapterWeakReference = new WeakReference<OrderAdapter>(adapter);
+        }
+
+        public void setActivityWeakReference(ClientMainActivity activity) {
+            this.activityWeakReference = new WeakReference<ClientMainActivity>(activity);
+        }
+
+        public void setFragmentWeakReference(OrderFragment fragment) {
+            this.fragmentWeakReference = new WeakReference<OrderFragment>(fragment);
+        }
+
         @Override
         public void handleMessage(final Message msg) {
+            final ClientMainActivity activity = activityWeakReference.get();
+            final OrderFragment fragment = fragmentWeakReference.get();
+            final OrderAdapter adapter = adapterWeakReference.get();
             String response = "";
             switch (msg.what) {
                 case BaseClassImpl.NET_ERROR:
 
-                    Toast.makeText(mContext, "网络错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show();
                     break;
                 case 1:
                     response = (String) msg.obj;
                     if (response.equals("true")) {
-                        parentActivity.runOnUiThread(new Runnable() {
+                        activity.runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                AlertDialog.Builder info = new AlertDialog.Builder(mContext);
+                                AlertDialog.Builder info = new AlertDialog.Builder(activity);
                                 info.setMessage("您已接单。请在规定时间内配送完毕。");
                                 info.setPositiveButton("确定", null);
                                 info.show();
-                                parentFragment.removeFromOrderList(msg.arg1);
+                                fragment.removeFromOrderList(msg.arg1);
                             }
                         });
                     } else {
-                        Toast.makeText(mContext, "接单错误", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(activity, "接单错误", Toast.LENGTH_SHORT).show();
                     }
                     break;
                 case 2:
                     response = (String) msg.obj;
                     if (response.equals("true")) {
-                        acceptOrder(order.getOrderId(), msg.arg1);
+                        adapter.acceptOrder(adapter.order.getOrderId(), msg.arg1);
                     } else {
-                            parentActivity.runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    AlertDialog.Builder builder = new
-                                            AlertDialog.Builder(mContext);
-                                    builder.setMessage("您需要先前往“我的-修改个人资料-身份认证”进行身份认证后才可以接单。");
-                                    builder.setPositiveButton("确定", null);
-                                    builder.show();
-                                }
-                            });
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                AlertDialog.Builder builder = new
+                                        AlertDialog.Builder(activity);
+                                builder.setMessage("您需要先前往“我的-修改个人资料-身份认证”进行身份认证后才可以接单。");
+                                builder.setPositiveButton("确定", null);
+                                builder.show();
+                            }
+                        });
 
                     }
                     break;
             }
         }
-    };
-
-    @Override
-    public int getItemCount() {
-        return orderList.size();
     }
 
     class ViewHolder extends RecyclerView.ViewHolder {

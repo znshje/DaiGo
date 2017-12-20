@@ -56,6 +56,7 @@ import org.apache.http.util.EntityUtils;
 
 import java.io.File;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -99,52 +100,8 @@ public class ModifyInfoActivity extends BaseActivity implements View.OnClickList
 
     private ProgressDialog progressDialog;
 
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            stopLoadingDialog();
-            stopProgressDialog();
-            switch (msg.what) {
-                case User.USER_RESPONSE:
+    private MyHandler mHandler = new MyHandler(this);
 
-//                            if (!user.getHeadIcon().equals("")) {
-//                                finalHeadBitmap = Utility.convertStringToBitmap(user.getHeadIcon());
-//                                CBModifyHead.setImageBitmap(finalHeadBitmap);
-//                            }
-                            user.convertJSON((String) msg.obj);
-                            runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    fillUserInfo();
-                                }
-                            });
-
-
-                    break;
-                case User.USER_WRONG:
-                    Toast.makeText(ModifyInfoActivity.this, "用户信息出错", Toast.LENGTH_SHORT).show();
-                    user.setNullValue();
-                    break;
-                case User.NET_ERROR:
-                    Toast.makeText(ModifyInfoActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
-                    break;
-                case 0:
-                    //TODO:保存并上传个人信息成功
-                    if (finalHeadBitmap != null) {
-                        user.setHeadIcon(Utility.convertBitmapToString(finalHeadBitmap));
-                    }
-
-                    user.setNickName(ETNickName.getText().toString());
-                    user.setDefaultAddress(ETAddress.getText().toString());
-                    user.writeToLocalDatabase();
-                    Toast.makeText(ModifyInfoActivity.this, "保存成功", Toast.LENGTH_SHORT).show();
-                    finish();
-                    break;
-            }
-
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -654,5 +611,56 @@ public class ModifyInfoActivity extends BaseActivity implements View.OnClickList
                 break;
         }
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+    }
+
+    private static class MyHandler extends Handler {
+        WeakReference<ModifyInfoActivity> activityWeakReference;
+        public MyHandler(ModifyInfoActivity activity) {
+            this.activityWeakReference = new WeakReference<ModifyInfoActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final ModifyInfoActivity activity = activityWeakReference.get();
+            activity.stopLoadingDialog();
+            activity.stopProgressDialog();
+            switch (msg.what) {
+                case User.USER_RESPONSE:
+
+//                            if (!user.getHeadIcon().equals("")) {
+//                                finalHeadBitmap = Utility.convertStringToBitmap(user.getHeadIcon());
+//                                CBModifyHead.setImageBitmap(finalHeadBitmap);
+//                            }
+                    activity.user.convertJSON((String) msg.obj);
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.fillUserInfo();
+                        }
+                    });
+
+
+                    break;
+                case User.USER_WRONG:
+                    Toast.makeText(activity, "用户信息出错", Toast.LENGTH_SHORT).show();
+                    activity.user.setNullValue();
+                    break;
+                case User.NET_ERROR:
+                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+                case 0:
+                    //TODO:保存并上传个人信息成功
+                    if (activity.finalHeadBitmap != null) {
+                        activity.user.setHeadIcon(Utility.convertBitmapToString(activity.finalHeadBitmap));
+                    }
+
+                    activity.user.setNickName(activity.ETNickName.getText().toString());
+                    activity.user.setDefaultAddress(activity.ETAddress.getText().toString());
+                    activity.user.writeToLocalDatabase();
+                    Toast.makeText(activity, "保存成功", Toast.LENGTH_SHORT).show();
+                    activity.finish();
+                    break;
+            }
+        }
     }
 }

@@ -38,6 +38,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -62,10 +63,11 @@ public class ShowMyOrdersFragment extends Fragment {
 
     private Thread thread;
 
+    private MyHandler handler = new MyHandler(this);
+
     public ShowMyOrdersFragment() {
         // Required empty public constructor
     }
-
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
@@ -210,41 +212,45 @@ public class ShowMyOrdersFragment extends Fragment {
         }
     }
 
+    private static class MyHandler extends Handler {
+        WeakReference<ShowMyOrdersFragment> fragmentWeakReference;
 
+        public MyHandler(ShowMyOrdersFragment fragment) {
+            this.fragmentWeakReference = new WeakReference<ShowMyOrdersFragment>(fragment);
+        }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
         @Override
         public void handleMessage(Message msg) {
+            final ShowMyOrdersFragment fragment = fragmentWeakReference.get();
             try {
-                getActivity().runOnUiThread(new Runnable() {
+                fragment.getActivity().runOnUiThread(new Runnable() {
                     @Override
                     public void run() {
-                        setLoading(false);
+                        fragment.setLoading(false);
                     }
                 });
                 switch (msg.what) {
                     case BaseClassImpl.NET_ERROR:
-                        Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(fragment.getContext(), "网络错误", Toast.LENGTH_SHORT).show();
                         break;
                     case 0:
-                        isLoaded = true;
+                        fragment.isLoaded = true;
                         String json = (String) msg.obj;
-                        orderDAOList.clear();
+                        fragment.orderDAOList.clear();
                         //解析JSON对象
                         if (json != null && !json.equals("null")) {
                             Gson gson = new Gson();
                             List<OrderDAO> orderDAOS = gson.fromJson(json, new TypeToken<List<OrderDAO>>()
                             {}.getType());
                             for (OrderDAO dao : orderDAOS) {
-                                Utility.addToFirst(orderDAOList, dao);
+                                Utility.addToFirst(fragment.orderDAOList, dao);
                             }
                         }
-                        getActivity().runOnUiThread(new Runnable() {
+                        fragment.getActivity().runOnUiThread(new Runnable() {
                             @Override
                             public void run() {
-                                adapter.setOrderDAOList(orderDAOList);
-                                adapter.notifyDataSetChanged();
+                                fragment.adapter.setOrderDAOList(fragment.orderDAOList);
+                                fragment.adapter.notifyDataSetChanged();
                             }
                         });
                         break;
@@ -252,7 +258,8 @@ public class ShowMyOrdersFragment extends Fragment {
             } catch (NullPointerException e) {
                 e.printStackTrace();
             }
-
         }
-    };
+    }
+
+
 }

@@ -41,6 +41,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -76,6 +77,9 @@ public class ResetPhoneActivity extends BaseActivity {
     private Thread verifyThread;
 
     private UserIntent userIntent;
+
+    private SMSHandler mHandler = new SMSHandler(this);
+    private MyHandler handler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -249,87 +253,6 @@ public class ResetPhoneActivity extends BaseActivity {
         timer.start();
     }
 
-    /**
-     * 处理验证码请求，具体返回Mob封装信息
-     */
-
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            int event = msg.arg1;
-            int result = msg.arg2;
-            Object data = msg.obj;
-
-            if (result == SMSSDK.RESULT_COMPLETE) {
-                //正确进行
-                if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                    //获取验证码
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            Toast.makeText(ResetPhoneActivity.this, "验证码已发送",
-                                    Toast.LENGTH_SHORT).show();
-                            startVerCodeCountDown();
-                        }
-                    });
-
-                } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
-                    //验证码正确
-                    checkVerCode = true;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            stopUIDialog();
-                        }
-                    });
-                    //执行修改逻辑
-                    if (checkVerCode) {
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //打开正在执行对话框
-                                startRegUIDialog();
-
-                                String phoneNum = nonspaceConvert(ETNewPhone.getText().toString()); //手机号码
-
-                                //开启网络请求
-                                updateUserOnServer(phoneNum);
-                            }
-                        });
-
-
-                    }
-
-                }
-
-            } else {
-                //出现异常
-                int status = 0;
-                try{
-                    ((Throwable) data).printStackTrace();
-                    Throwable throwable = (Throwable) data;
-
-                    JSONObject object = new JSONObject(throwable.getMessage());
-                    final String des = object.optString("detail");
-                    status = object.optInt("status");
-                    if (!TextUtils.isEmpty(des)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                stopUIDialog();
-                                Toast.makeText(ResetPhoneActivity.this, des, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                } catch (Exception e) {
-                    SMSLog.getInstance().w(e);
-                }
-            }
-        }
-    };
 
     /**
      * 向服务器更新手机号
@@ -385,39 +308,6 @@ public class ResetPhoneActivity extends BaseActivity {
         updateThread.start();
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    stopUIDialog();
-                    Toast.makeText(ResetPhoneActivity.this, "修改成功", Toast.LENGTH_SHORT).show();
-                    passResult(ETNewPhone.getText().toString());
-                    break;
-                case 1:
-                    String response = (String) msg.obj;
-                    if (!response.equals("false")) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                llOld.setVisibility(View.GONE);
-                                llNew.setVisibility(View.VISIBLE);
-                            }
-                        });
-
-                    } else {
-                        Toast.makeText(ResetPhoneActivity.this, "手机号或密码错误", Toast.LENGTH_SHORT).show();
-                    }
-                    break;
-                case User.NET_ERROR:
-                    stopUIDialog();
-                    Toast.makeText(ResetPhoneActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
-
     /**
      * 显示正在注册对话框
      */
@@ -435,6 +325,128 @@ public class ResetPhoneActivity extends BaseActivity {
     private void stopUIDialog() {
         if (applyDialog != null) {
             applyDialog.dismiss();
+        }
+    }
+
+
+    private static class SMSHandler extends Handler {
+        WeakReference<ResetPhoneActivity> activityWeakReference;
+        public SMSHandler(ResetPhoneActivity activity) {
+            this.activityWeakReference = new WeakReference<ResetPhoneActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final ResetPhoneActivity activity = activityWeakReference.get();
+            int event = msg.arg1;
+            int result = msg.arg2;
+            Object data = msg.obj;
+
+            if (result == SMSSDK.RESULT_COMPLETE) {
+                //正确进行
+                if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
+                    //获取验证码
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(activity, "验证码已发送",
+                                    Toast.LENGTH_SHORT).show();
+                            activity.startVerCodeCountDown();
+                        }
+                    });
+
+                } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    //验证码正确
+                    activity.checkVerCode = true;
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.stopUIDialog();
+                        }
+                    });
+                    //执行修改逻辑
+                    if (activity.checkVerCode) {
+
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //打开正在执行对话框
+                                activity.startRegUIDialog();
+
+                                String phoneNum = activity.nonspaceConvert(activity.ETNewPhone.getText().toString()); //手机号码
+
+                                //开启网络请求
+                                activity.updateUserOnServer(phoneNum);
+                            }
+                        });
+
+
+                    }
+
+                }
+
+            } else {
+                //出现异常
+                int status = 0;
+                try{
+                    ((Throwable) data).printStackTrace();
+                    Throwable throwable = (Throwable) data;
+
+                    JSONObject object = new JSONObject(throwable.getMessage());
+                    final String des = object.optString("detail");
+                    status = object.optInt("status");
+                    if (!TextUtils.isEmpty(des)) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.stopUIDialog();
+                                Toast.makeText(activity, des, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                } catch (Exception e) {
+                    SMSLog.getInstance().w(e);
+                }
+            }
+        }
+    }
+
+    private static class MyHandler extends Handler {
+        WeakReference<ResetPhoneActivity> activityWeakReference;
+        public MyHandler(ResetPhoneActivity activity) {
+            this.activityWeakReference = new WeakReference<ResetPhoneActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final ResetPhoneActivity activity = activityWeakReference.get();
+            switch (msg.what) {
+                case 0:
+                    activity.stopUIDialog();
+                    Toast.makeText(activity, "修改成功", Toast.LENGTH_SHORT).show();
+                    activity.passResult(activity.ETNewPhone.getText().toString());
+                    break;
+                case 1:
+                    String response = (String) msg.obj;
+                    if (!response.equals("false")) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.llOld.setVisibility(View.GONE);
+                                activity.llNew.setVisibility(View.VISIBLE);
+                            }
+                        });
+
+                    } else {
+                        Toast.makeText(activity, "手机号或密码错误", Toast.LENGTH_SHORT).show();
+                    }
+                    break;
+                case User.NET_ERROR:
+                    activity.stopUIDialog();
+                    Toast.makeText(activity, "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+            }
         }
     }
 

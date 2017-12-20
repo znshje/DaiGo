@@ -3,6 +3,7 @@ package com.jshaz.daigo.util;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
+import android.support.annotation.Nullable;
 
 import com.jshaz.daigo.ui.BaseActivity;
 import com.jshaz.daigo.ui.BaseFragment;
@@ -34,42 +35,49 @@ public class NetThread extends Thread {
     private BaseFragment fragment;
     private BaseActivity activity;
 
+    private boolean isLoop = true;
+
     public NetThread() {
         super();
     }
 
-    public NetThread(String ipAddress, List<NameValuePair> params, Handler handler,
-                     int successCode, int failCode) {
+    public NetThread(String ipAddress, List<NameValuePair> params, @Nullable Handler handler,
+                     int successCode, int failCode, boolean isLoop) {
         this.ipAddress = ipAddress;
         this.params = params;
         this.handler = handler;
         this.successCode = successCode;
         this.failCode = failCode;
+        this.isLoop = isLoop;
     }
 
-    public NetThread(String ipAddress, List<NameValuePair> params, Handler handler,
-                     int successCode, int failCode, BaseFragment fragment) {
+    public NetThread(String ipAddress, List<NameValuePair> params, @Nullable Handler handler,
+                     int successCode, int failCode, BaseFragment fragment, boolean isLoop) {
         this.ipAddress = ipAddress;
         this.params = params;
         this.handler = handler;
         this.successCode = successCode;
         this.failCode = failCode;
         this.fragment = fragment;
+        this.isLoop = isLoop;
     }
 
-    public NetThread(String ipAddress, List<NameValuePair> params, Handler handler,
-                     int successCode, int failCode, BaseActivity activity) {
+    public NetThread(String ipAddress, List<NameValuePair> params, @Nullable Handler handler,
+                     int successCode, int failCode, BaseActivity activity, boolean isLoop) {
         this.ipAddress = ipAddress;
         this.params = params;
         this.handler = handler;
         this.successCode = successCode;
         this.failCode = failCode;
         this.activity = activity;
+        this.isLoop = isLoop;
     }
 
     @Override
     public void run() {
-        Looper.prepare();
+        if (isLoop) {
+            Looper.prepare();
+        }
         try {
             BasicHttpParams httpParams = new BasicHttpParams();
             HttpConnectionParams.setConnectionTimeout(httpParams, 5000);
@@ -84,6 +92,9 @@ public class NetThread extends Thread {
             httpPost.setEntity(entity);
             //对提交数据进行编码
             HttpResponse httpResponse = httpclient.execute(httpPost);
+
+            if (handler == null) return;
+
             if(httpResponse.getStatusLine().getStatusCode()==200)//在5000毫秒之内接收到返回值
             {
                 String response = "";
@@ -116,10 +127,13 @@ public class NetThread extends Thread {
             }
         } catch (Exception e) {
             e.printStackTrace();
+            if (handler == null) return;
             Message message = handler.obtainMessage();
             message.what = failCode;
             handler.handleMessage(message);
         }
-        Looper.loop();
+        if (isLoop) {
+            Looper.loop();
+        }
     }
 }

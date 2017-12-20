@@ -43,6 +43,7 @@ import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 import org.json.JSONObject;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
@@ -74,6 +75,9 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
     private Thread regThread;
 
     private TextView eula;
+
+    private SMSHandler mHandler = new SMSHandler(this);
+    private MyHandler handler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -181,120 +185,6 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
         stopUIDialog();
     }
 
-
-    /**
-     * 处理验证码请求，具体返回Mob封装信息
-     */
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        public void handleMessage(Message msg) {
-            super.handleMessage(msg);
-            int event = msg.arg1;
-            int result = msg.arg2;
-            Object data = msg.obj;
-
-            if (result == SMSSDK.RESULT_COMPLETE) {
-            //正确进行
-                if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
-                    //获取验证码
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                Toast.makeText(RegActivity.this, "验证码已发送",
-                                        Toast.LENGTH_SHORT).show();
-                                startVerCodeCountDown();
-                            }
-                        });
-
-                } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
-                    //验证码正确
-                    checkVerCode = true;
-                    runOnUiThread(new Runnable() {
-                        @Override
-                        public void run() {
-                            stopUIDialog();
-                        }
-                    });
-                    //执行注册逻辑
-                    if (checkPassword() && checkVerCode) {
-
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                //打开正在注册对话框
-                                startRegUIDialog();
-                                String disCode = nonspaceConvert(editDisCode.getText().toString()); //区号
-                                String phoneNum = nonspaceConvert(editPhone.getText().toString()); //手机号码
-                                String password = editPassword.getText().toString(); //密码
-
-                                //开启网络请求
-                                addUserOnServer(disCode, phoneNum, password);
-                            }
-                        });
-
-
-                    }
-
-                }
-
-            } else {
-            //出现异常
-                int status = 0;
-                try{
-                    ((Throwable) data).printStackTrace();
-                    Throwable throwable = (Throwable) data;
-
-                    JSONObject object = new JSONObject(throwable.getMessage());
-                    final String des = object.optString("detail");
-                    status = object.optInt("status");
-                    if (!TextUtils.isEmpty(des)) {
-                        runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                stopUIDialog();
-                                Toast.makeText(RegActivity.this, des, Toast.LENGTH_SHORT).show();
-                            }
-                        });
-                    }
-
-                } catch (Exception e) {
-                    SMSLog.getInstance().w(e);
-                }
-            }
-        }
-    };
-
-    /**
-     * 处理网络请求
-     */
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    String response = (String) msg.obj;
-                    if (response.equals("")) {
-                        Toast.makeText(RegActivity.this,"连接超时",Toast.LENGTH_SHORT).show();
-                        stopUIDialog();
-                    } else {
-                        stopUIDialog();
-                        if (response.equals("false")) {
-                            Toast.makeText(RegActivity.this, "手机号已被注册", Toast.LENGTH_SHORT).show();
-                        } else {
-                            Toast.makeText(RegActivity.this, "注册成功", Toast.LENGTH_SHORT).show();
-                            finish();
-                        }
-
-                    }
-                    break;
-                case 1:
-                    Toast.makeText(RegActivity.this,"连接超时",Toast.LENGTH_SHORT).show();
-                    stopUIDialog();
-                    break;
-            }
-        }
-    };
 
     /**
      * 去掉号码中的特殊字符
@@ -430,6 +320,124 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
 
             });
             regThread.start();
+    }
+
+    private static class SMSHandler extends Handler {
+        WeakReference<RegActivity> activityWeakReference;
+        public SMSHandler(RegActivity activity) {
+            this.activityWeakReference = new WeakReference<RegActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final RegActivity activity = activityWeakReference.get();
+            int event = msg.arg1;
+            int result = msg.arg2;
+            Object data = msg.obj;
+
+            if (result == SMSSDK.RESULT_COMPLETE) {
+                //正确进行
+                if (event == SMSSDK.EVENT_GET_VERIFICATION_CODE) {
+                    //获取验证码
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            Toast.makeText(activity, "验证码已发送",
+                                    Toast.LENGTH_SHORT).show();
+                            activity.startVerCodeCountDown();
+                        }
+                    });
+
+                } else if (event == SMSSDK.EVENT_SUBMIT_VERIFICATION_CODE) {
+                    //验证码正确
+                    activity.checkVerCode = true;
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.stopUIDialog();
+                        }
+                    });
+                    //执行注册逻辑
+                    if (activity.checkPassword() && activity.checkVerCode) {
+
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                //打开正在注册对话框
+                                activity.startRegUIDialog();
+                                String disCode = activity.nonspaceConvert(activity.editDisCode.getText().toString()); //区号
+                                String phoneNum = activity.nonspaceConvert(activity.editPhone.getText().toString()); //手机号码
+                                String password = activity.editPassword.getText().toString(); //密码
+
+                                //开启网络请求
+                                activity.addUserOnServer(disCode, phoneNum, password);
+                            }
+                        });
+
+
+                    }
+
+                }
+
+            } else {
+                //出现异常
+                int status = 0;
+                try{
+                    ((Throwable) data).printStackTrace();
+                    Throwable throwable = (Throwable) data;
+
+                    JSONObject object = new JSONObject(throwable.getMessage());
+                    final String des = object.optString("detail");
+                    status = object.optInt("status");
+                    if (!TextUtils.isEmpty(des)) {
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.stopUIDialog();
+                                Toast.makeText(activity, des, Toast.LENGTH_SHORT).show();
+                            }
+                        });
+                    }
+
+                } catch (Exception e) {
+                    SMSLog.getInstance().w(e);
+                }
+            }
+        }
+    }
+
+    private static class MyHandler extends Handler {
+        WeakReference<RegActivity> activityWeakReference;
+        public MyHandler(RegActivity activity) {
+            this.activityWeakReference = new WeakReference<RegActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            final RegActivity activity = activityWeakReference.get();
+            switch (msg.what) {
+                case 0:
+                    String response = (String) msg.obj;
+                    if (response.equals("")) {
+                        Toast.makeText(activity,"连接超时",Toast.LENGTH_SHORT).show();
+                        activity.stopUIDialog();
+                    } else {
+                        activity.stopUIDialog();
+                        if (response.equals("false")) {
+                            Toast.makeText(activity, "手机号已被注册", Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(activity, "注册成功", Toast.LENGTH_SHORT).show();
+                            activity.finish();
+                        }
+
+                    }
+                    break;
+                case 1:
+                    Toast.makeText(activity,"连接超时",Toast.LENGTH_SHORT).show();
+                    activity.stopUIDialog();
+                    break;
+            }
+        }
     }
 
 

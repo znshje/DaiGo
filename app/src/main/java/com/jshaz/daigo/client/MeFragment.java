@@ -41,6 +41,7 @@ import com.jshaz.daigo.util.User;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
@@ -73,6 +74,8 @@ public class MeFragment extends Fragment {
     private ToolBarView toolBarView;
 
     private ProgressDialog progressDialog;
+
+    private MyHandler handler;
 
 
     @Nullable
@@ -199,7 +202,7 @@ public class MeFragment extends Fragment {
                 List<NameValuePair> params = new ArrayList<NameValuePair>();
                 params.add(new BasicNameValuePair("type", "vercode"));
                 Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, handler,
-                        0, 1);
+                        0, 1, true);
                 updateThread.start();
             }
         });
@@ -301,6 +304,7 @@ public class MeFragment extends Fragment {
 
     public void setActivity(ClientMainActivity activity) {
         parentActivity = activity;
+        handler = new MyHandler(parentActivity, this);
     }
 
     public void setUpdateAble() {
@@ -311,6 +315,99 @@ public class MeFragment extends Fragment {
         isUpdate = true;
     }
 
+    private static class MyHandler extends Handler {
+
+        WeakReference<ClientMainActivity> activityWeakReference;
+        WeakReference<MeFragment> fragmentWeakReference;
+
+        public MyHandler(ClientMainActivity activity, MeFragment fragment) {
+            this.activityWeakReference = new WeakReference<ClientMainActivity>(activity);
+            this.fragmentWeakReference = new WeakReference<MeFragment>(fragment);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            try {
+                activityWeakReference.get().runOnUiThread(new Runnable() {
+                    @Override
+                    public void run() {
+                        fragmentWeakReference.get().stopProgressDialog();
+                    }
+                });
+            } catch (NullPointerException e) {
+                e.printStackTrace();
+            }
+
+            String response = "";
+            switch (msg.what) {
+                case User.USER_RESPONSE:
+                    fragmentWeakReference.get().setLogin();
+                    break;
+                case User.NET_ERROR:
+                    break;
+                case User.USER_WRONG:
+                    fragmentWeakReference.get().setUnLogin();
+                    break;
+                case 0:
+                    response = (String) msg.obj;
+                    if (response.equals("" + AppInfo.getVersionCode(activityWeakReference.get()))) {
+                        Toast.makeText(activityWeakReference.get(), "当前是最新版本", Toast.LENGTH_SHORT).show();
+                    } else {
+
+                        activityWeakReference.get().runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                fragmentWeakReference.get().startProgressDialog();
+                            }
+                        });
+
+                        List<NameValuePair> params = new ArrayList<NameValuePair>();
+                        params.add(new BasicNameValuePair("type", "logcontent"));
+                        Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, this,
+                                2, 1, true);
+                        updateThread.start();
+                    }
+                    break;
+                case 1:
+
+                    break;
+                case 2:
+                    response = (String) msg.obj;
+                    AlertDialog.Builder builder = new AlertDialog.Builder(activityWeakReference.get());
+                    builder.setTitle("有更新可用");
+                    builder.setMessage(response);
+                    builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            //获取文件名
+
+                            activityWeakReference.get().runOnUiThread(new Runnable() {
+                                @Override
+                                public void run() {
+                                    fragmentWeakReference.get().startProgressDialog();
+                                }
+                            });
+
+                            List<NameValuePair> params = new ArrayList<NameValuePair>();
+                            params.add(new BasicNameValuePair("type", "filename"));
+                            Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, MyHandler.this,
+                                    3, 1, true);
+                            updateThread.start();
+                        }
+                    });
+                    builder.setNegativeButton("取消", null);
+                    builder.show();
+                    break;
+                case 3:
+                    response = (String) msg.obj;
+                    //开启下载服务
+                    fragmentWeakReference.get().startDownload(response);
+                    break;
+            }
+        }
+    }
+
+    /*
     @SuppressLint("HandlerLeak")
     Handler handler = new Handler() {
         @Override
@@ -394,4 +491,5 @@ public class MeFragment extends Fragment {
             }
         }
     };
+    */
 }

@@ -44,6 +44,7 @@ import com.jshaz.daigo.intents.UserIntent;
 import com.jshaz.daigo.serverutil.ServerUtil;
 import com.jshaz.daigo.service.AutoUpdateService;
 import com.jshaz.daigo.service.DownloadService;
+import com.jshaz.daigo.service.LocationService;
 import com.jshaz.daigo.ui.MyApplication;
 import com.jshaz.daigo.ui.NavigationView;
 import com.jshaz.daigo.R;
@@ -67,6 +68,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -126,11 +128,15 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         }
     };
 
+    private MyHandler handler = new MyHandler(this);
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_client_main);
+
+        requestPermissions();
 
         getUserInfo();
 
@@ -143,6 +149,8 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         initReceiver();
 
         startAutoUpdateService();
+
+        startLocationService();
 
         /**
          * need Debug
@@ -194,8 +202,16 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         switch (requestCode) {
             case 1:
-                if (grantResults.length > 0 && grantResults[0] != PackageManager.PERMISSION_GRANTED) {
-                    Toast.makeText(this, "Permission Denied", Toast.LENGTH_SHORT).show();
+                if (grantResults.length > 0) {
+                    for (int result : grantResults) {
+                        if (result != PackageManager.PERMISSION_GRANTED) {
+                            Toast.makeText(this, "关键权限被拒绝", Toast.LENGTH_SHORT).show();
+                            finish();
+                            return;
+                        }
+                    }
+                } else {
+                    Toast.makeText(this, "发生未知错误", Toast.LENGTH_SHORT).show();
                     finish();
                 }
                 break;
@@ -489,6 +505,14 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         startService(intent);
     }
 
+    /**
+     * 开启位置传输服务
+     */
+    private void startLocationService() {
+        Intent intent = new Intent(this, LocationService.class);
+        startService(intent);
+    }
+
 
     /**
      * 从服务器端获取用户数据
@@ -522,11 +546,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         Intent intent = new Intent(this, DownloadService.class);
         startService(intent);
         getApplicationContext().bindService(intent, connection, BIND_AUTO_CREATE);
-        if (ContextCompat.checkSelfPermission(ClientMainActivity.this,
-                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
-            ActivityCompat.requestPermissions(this, new
-                    String[]{Manifest.permission.WRITE_EXTERNAL_STORAGE}, 1);
-        }
+
     }
 
     /**
@@ -662,43 +682,70 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         List<NameValuePair> params = new ArrayList<NameValuePair>();
         params.add(new BasicNameValuePair("type", "vercode"));
         ServerUtil.getThread(ServerUtil.SLUpdate, params, handler,
-                0, 1).start();
+                0, 1, true).start();
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
+    private void requestPermissions() {
+        List<String> permissionList = new ArrayList<>();
+        if (ContextCompat.checkSelfPermission(ClientMainActivity.this,
+                Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.WRITE_EXTERNAL_STORAGE);
+        }
+        if (ContextCompat.checkSelfPermission(ClientMainActivity.this,
+                Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.ACCESS_FINE_LOCATION);
+        }
+        if (ContextCompat.checkSelfPermission(ClientMainActivity.this,
+                Manifest.permission.READ_PHONE_STATE) != PackageManager.PERMISSION_GRANTED) {
+            permissionList.add(Manifest.permission.READ_PHONE_STATE);
+        }
+        if (!permissionList.isEmpty()) {
+            String[] permissions = permissionList.toArray(new String[permissionList.size()]);
+            ActivityCompat.requestPermissions(ClientMainActivity.this, permissions, 1);
+        }
+    }
+
+    private static class MyHandler extends Handler {
+
+        WeakReference<ClientMainActivity> activityWeakReference;
+
+        public MyHandler(ClientMainActivity activity) {
+            this.activityWeakReference = new WeakReference<ClientMainActivity>(activity);
+        }
+
         @Override
         public void handleMessage(Message msg) {
             switch (msg.what) {
                 case User.USER_RESPONSE:
-                    isLogin = true;
+                    activityWeakReference.get().isLogin = true;
                     String response = (String) msg.obj;
-                    curUser.convertJSON(response);
+                    activityWeakReference.get().curUser.convertJSON(response);
 
-                    runOnUiThread(new Runnable() {
+                    activityWeakReference.get().runOnUiThread(new Runnable() {
                         @Override
                         public void run() {
-                            fillUserInfo();
+                            activityWeakReference.get().fillUserInfo();
                         }
                     });
 
                     break;
                 case User.NET_ERROR:
-                    Toast.makeText(ClientMainActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activityWeakReference.get(), "网络错误", Toast.LENGTH_SHORT).show();
                     break;
                 case User.USER_WRONG:
-                    Toast.makeText(ClientMainActivity.this, "用户信息错误，请重新登录", Toast.LENGTH_SHORT).show();
-                    isLogin = false;
+                    Toast.makeText(activityWeakReference.get(), "用户信息错误，请重新登录", Toast.LENGTH_SHORT).show();
+                    activityWeakReference.get().isLogin = false;
                     break;
                 case 0:
                     response = (String) msg.obj;
                     if (!response.equals("" + AppInfo.getVersionCode(
-                            ClientMainActivity.this))) {
-                        meFragment.setUpdate();
+                            activityWeakReference.get()))) {
+                        activityWeakReference.get().meFragment.setUpdate();
                     }
                     break;
             }
         }
-    };
+
+    }
 
 }

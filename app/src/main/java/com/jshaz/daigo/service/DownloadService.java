@@ -1,6 +1,7 @@
 package com.jshaz.daigo.service;
 
 import android.app.Notification;
+import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.Service;
 import android.content.Intent;
@@ -19,6 +20,7 @@ import com.jshaz.daigo.BuildConfig;
 import com.jshaz.daigo.R;
 import com.jshaz.daigo.interfaces.DownloadListener;
 import com.jshaz.daigo.serverutil.DownloadTask;
+import com.jshaz.daigo.util.NotificationUtil;
 
 import java.io.File;
 
@@ -29,21 +31,25 @@ import java.io.File;
 
 public class DownloadService extends Service {
 
+    public static final String nId = "download_channel";
+
     private DownloadTask downloadTask;
 
     private String downloadUrl;
 
+    private NotificationUtil notificationUtil = new NotificationUtil(this);
+
     private DownloadListener listener = new DownloadListener() {
         @Override
         public void onProgress(int progress) {
-            getNotificationManager().notify(1, getNotification("正在下载...", progress));
+            notificationUtil.sendNotification("正在下载...", progress);
         }
 
         @Override
         public void onSuccess() {
             downloadTask = null;
             stopForeground(true);
-            getNotificationManager().notify(1, getNotification("下载成功", -1));
+            notificationUtil.sendNotification("下载成功", -1);
             openAPK();
         }
 
@@ -51,7 +57,7 @@ public class DownloadService extends Service {
         public void onFailed() {
             downloadTask = null;
             stopForeground(true);
-            getNotificationManager().notify(1, getNotification("下载失败", -1));
+            notificationUtil.sendNotification("下载失败", -1);
         }
 
         @Override
@@ -85,7 +91,7 @@ public class DownloadService extends Service {
                 downloadUrl = url;
                 downloadTask = new DownloadTask(listener);
                 downloadTask.execute(downloadUrl);
-                startForeground(1, getNotification("正在下载...", 0));
+                startForeground(1, notificationUtil.getNotificationBuilder("正在下载...", 0).build());
             }
         }
 
@@ -108,27 +114,13 @@ public class DownloadService extends Service {
                     if (file.exists()) {
                         file.delete();
                     }
-                    getNotificationManager().cancel(1);
+                    new NotificationUtil(DownloadService.this).getManager().cancel(1);
+//                    getNotificationManager().cancel(1);
+                    notificationUtil.getManager().cancel(1);
                     stopForeground(true);
                 }
             }
         }
-    }
-
-    private NotificationManager getNotificationManager() {
-        return (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-    }
-
-    private Notification getNotification(String title, int progress) {
-        NotificationCompat.Builder builder = new NotificationCompat.Builder(this);
-        builder.setSmallIcon(R.mipmap.ic_launcher);
-        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
-        builder.setContentTitle(title);
-        if (progress > 0) {
-            builder.setContentText(progress + "%");
-            builder.setProgress(100, progress, false);
-        }
-        return builder.build();
     }
 
     /**

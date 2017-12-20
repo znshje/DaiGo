@@ -16,6 +16,9 @@
     <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED" />
     <uses-permission android:name="android.permission.WRITE_SETTINGS" />
     <uses-permission android:name="android.permission.GET_TASKS" />
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE" />
+    <uses-permission android:name="android.permission.MOUNT_UNMOUNT_FILESYSTEMS" />
+    <uses-permission android:name="android.permission.WAKE_LOCK" />
 
     <application
         android:allowBackup="true"
@@ -24,6 +27,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <meta-data
+            android:name="com.baidu.lbsapi.API_KEY"
+            android:value="EahpEQuzjwy1bF9WjqjVm47h57mv8EsH" />
+
+        <service android:name="com.baidu.location.f"
+            android:enabled="true"
+            android:process=":remote" />
+
         <provider
             android:name="android.support.v4.content.FileProvider"
             android:authorities="com.jshaz.daigo.fileprovider"
@@ -133,6 +144,9 @@
             android:screenOrientation="portrait" />
         <service
             android:name=".service.DownloadService"
+            android:enabled="true"
+            android:exported="true" />
+        <service android:name=".service.LocationService"
             android:enabled="true"
             android:exported="true" />
     </application>

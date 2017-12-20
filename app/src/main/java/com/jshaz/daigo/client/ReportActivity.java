@@ -34,6 +34,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -54,6 +55,8 @@ public class ReportActivity extends BaseActivity {
     private ProgressDialog dialog;
 
     private Thread submitThread;
+
+    private MyHandler handler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -199,20 +202,27 @@ public class ReportActivity extends BaseActivity {
     }
 
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
+    private static class MyHandler extends Handler {
+        WeakReference<ReportActivity> activityWeakReference;
+
+        public MyHandler(ReportActivity activity) {
+            this.activityWeakReference = new WeakReference<ReportActivity>(activity);
+        }
+
         @Override
         public void handleMessage(Message msg) {
-            stopDialog();
+            activityWeakReference.get().stopDialog();
             switch (msg.what) {
                 case 0:
-                    Toast.makeText(ReportActivity.this, "提交成功", Toast.LENGTH_SHORT).show();
-                    finish();
+                    Toast.makeText(activityWeakReference.get(), "提交成功", Toast.LENGTH_SHORT).show();
+                    activityWeakReference.get().finish();
                     break;
                 case 1:
-                    Toast.makeText(ReportActivity.this, "网络错误", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(activityWeakReference.get(), "网络错误", Toast.LENGTH_SHORT).show();
                     break;
             }
         }
-    };
+    }
+
+
 }

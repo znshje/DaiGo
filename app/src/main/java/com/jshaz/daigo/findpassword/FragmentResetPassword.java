@@ -34,6 +34,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,6 +56,8 @@ public class FragmentResetPassword extends Fragment implements View.OnClickListe
 
     private final int SLIDE_FROM_LEFT_TO_RIGHT = 0;//从左向右滑动页面的动画代码
     private final int SLIDE_FROM_RIGHT_TO_LEFT = 1;//从右向左滑动页面的动画代码
+
+    private MyHandler handler = new MyHandler(this);
 
     private Thread applyThread = new Thread(new Runnable() {
         @Override
@@ -155,21 +158,6 @@ public class FragmentResetPassword extends Fragment implements View.OnClickListe
         this.findPhone = phone;
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    replaceFragment(fragmentSuccess, SLIDE_FROM_RIGHT_TO_LEFT);
-                    break;
-                case 1:
-                    Toast.makeText(getContext(), "网络错误", Toast.LENGTH_SHORT).show();
-                    break;
-            }
-        }
-    };
-
     private boolean checkPasswordFormat(String password) {
         if (password.length() < 6) {
             Toast.makeText(getContext(), "密码长度不能少于6位", Toast.LENGTH_SHORT).show();
@@ -234,6 +222,28 @@ public class FragmentResetPassword extends Fragment implements View.OnClickListe
             @Override
             public void run() {}
         }, 200);
+    }
+
+    private static class MyHandler extends Handler {
+        WeakReference<FragmentResetPassword> fragmentResetPasswordWeakReference;
+
+        public MyHandler(FragmentResetPassword fragmentResetPassword) {
+            this.fragmentResetPasswordWeakReference = new
+                    WeakReference<FragmentResetPassword>(fragmentResetPassword);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            FragmentResetPassword fragment = fragmentResetPasswordWeakReference.get();
+            switch (msg.what) {
+                case 0:
+                    fragment.replaceFragment(fragment.fragmentSuccess, fragment.SLIDE_FROM_RIGHT_TO_LEFT);
+                    break;
+                case 1:
+                    Toast.makeText(fragment.getContext(), "网络错误", Toast.LENGTH_SHORT).show();
+                    break;
+            }
+        }
     }
 
 }

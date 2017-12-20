@@ -45,6 +45,7 @@ import org.apache.http.params.BasicHttpParams;
 import org.apache.http.params.HttpConnectionParams;
 import org.apache.http.util.EntityUtils;
 
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.net.URLConnection;
 import java.util.ArrayList;
@@ -94,6 +95,8 @@ public class AddOrderActivity extends BaseActivity {
     private NetWorkStateReceiver receiver;
 
     private UserIntent userIntent;
+
+    private MyHandler mHandler = new MyHandler(this);
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -390,44 +393,6 @@ public class AddOrderActivity extends BaseActivity {
         addThread.start();
     }
 
-    @SuppressLint("HandlerLeak")
-    Handler mHandler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            switch (msg.what) {
-                case 0:
-                    Order order = new Order(setting.getCurUser().toDAO(),
-                            orderType,
-                            publicContent.getText().toString(),
-                            privateContent.getText().toString(),
-                            setting.getCampusCode());
-                    stopSubmissionDialog();
-                    startTimeEnsureDialog(requestTimeIndex, (long) msg.obj);
-                    break;
-                case 1:
-                    Toast.makeText(AddOrderActivity.this,
-                            "网络连接错误", Toast.LENGTH_SHORT).show();
-                    break;
-                case 2:
-                    //网络正常
-                    String response = (String) msg.obj;
-                    if (response.equals("false")) {
-                        Toast.makeText(AddOrderActivity.this,"发布失败",Toast.LENGTH_SHORT).show();
-                        stopSubmissionDialog();
-                    } else {
-                        stopSubmissionDialog();
-                        Toast.makeText(AddOrderActivity.this, "提交成功", Toast.LENGTH_SHORT).show();
-                        finish();
-                    }
-                    break;
-                case 3:
-                    //连接超时
-                    Toast.makeText(AddOrderActivity.this,"连接超时",Toast.LENGTH_SHORT).show();
-                    stopSubmissionDialog();
-                    break;
-            }
-        }
-    };
 
     /**
      * 创建订单逻辑
@@ -473,5 +438,51 @@ public class AddOrderActivity extends BaseActivity {
             }
         });
         timeEnsureDialog.show();
+    }
+
+    private static class MyHandler extends Handler {
+
+        WeakReference<AddOrderActivity> addOrderActivityWeakReference;
+
+        public MyHandler(AddOrderActivity activity) {
+            this.addOrderActivityWeakReference = new WeakReference<AddOrderActivity>(activity);
+        }
+
+        @Override
+        public void handleMessage(Message msg) {
+            switch (msg.what) {
+                case 0:
+                    Order order = new Order(addOrderActivityWeakReference.get().setting.getCurUser().toDAO(),
+                            addOrderActivityWeakReference.get().orderType,
+                            addOrderActivityWeakReference.get().publicContent.getText().toString(),
+                            addOrderActivityWeakReference.get().privateContent.getText().toString(),
+                            addOrderActivityWeakReference.get().setting.getCampusCode());
+                    addOrderActivityWeakReference.get().stopSubmissionDialog();
+                    addOrderActivityWeakReference.get().startTimeEnsureDialog(
+                            addOrderActivityWeakReference.get().requestTimeIndex, (long) msg.obj);
+                    break;
+                case 1:
+                    Toast.makeText(addOrderActivityWeakReference.get(),
+                            "网络连接错误", Toast.LENGTH_SHORT).show();
+                    break;
+                case 2:
+                    //网络正常
+                    String response = (String) msg.obj;
+                    if (response.equals("false")) {
+                        Toast.makeText(addOrderActivityWeakReference.get(),"发布失败",Toast.LENGTH_SHORT).show();
+                        addOrderActivityWeakReference.get().stopSubmissionDialog();
+                    } else {
+                        addOrderActivityWeakReference.get().stopSubmissionDialog();
+                        Toast.makeText(addOrderActivityWeakReference.get(), "提交成功", Toast.LENGTH_SHORT).show();
+                        addOrderActivityWeakReference.get().finish();
+                    }
+                    break;
+                case 3:
+                    //连接超时
+                    Toast.makeText(addOrderActivityWeakReference.get(),"连接超时",Toast.LENGTH_SHORT).show();
+                    addOrderActivityWeakReference.get().stopSubmissionDialog();
+                    break;
+            }
+        }
     }
 }
