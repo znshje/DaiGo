@@ -54,6 +54,17 @@ public class NotificationUtil extends ContextWrapper {
         return null;
     }
 
+    public Notification.Builder getChannelNotification(String title, String content) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            Notification.Builder builder = new Notification.Builder(getApplicationContext(), nId);
+            builder.setContentTitle(title);
+            builder.setContentText(content);
+            builder.setSmallIcon(R.mipmap.icon_house);
+            return builder;
+        }
+        return null;
+    }
+
     public NotificationCompat.Builder getNotificationBuilder(String title, int progress) {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 getApplicationContext());
@@ -66,6 +77,15 @@ public class NotificationUtil extends ContextWrapper {
         return builder;
     }
 
+    public NotificationCompat.Builder getNotificationBuilder(String title, String content) {
+        NotificationCompat.Builder builder = new NotificationCompat.Builder(
+                getApplicationContext());
+        builder.setContentText(content);
+        builder.setContentTitle(title);
+        builder.setSmallIcon(R.mipmap.icon_house);
+        return builder;
+    }
+
     public void sendNotification(String title, int progress) {
         if (Build.VERSION.SDK_INT >= 26) {
             createNotificationChannel();
@@ -74,6 +94,18 @@ public class NotificationUtil extends ContextWrapper {
             getManager().notify(1, notification);
         } else {
             Notification notification = getNotificationBuilder(title, progress).build();
+            getManager().notify(1, notification);
+        }
+    }
+
+    public void sendNotification(String title, String content) {
+        if (Build.VERSION.SDK_INT >= 26) {
+            createNotificationChannel();
+            Notification notification = getChannelNotification(title, content)
+                    .build();
+            getManager().notify(1, notification);
+        } else {
+            Notification notification = getNotificationBuilder(title, content).build();
             getManager().notify(1, notification);
         }
     }

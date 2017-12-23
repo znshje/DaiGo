@@ -196,6 +196,10 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         super.onDestroy();
         localBroadcastManager.unregisterReceiver(orderUpdateReceiver);
         getApplicationContext().unbindService(connection);
+        //关闭所有服务
+        stopService(new Intent(ClientMainActivity.this, LocationService.class));
+        stopService(new Intent(ClientMainActivity.this, DownloadService.class));
+        stopService(new Intent(ClientMainActivity.this, AutoUpdateService.class));
     }
 
     @Override
@@ -624,6 +628,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                         mExitTime = System.currentTimeMillis();
                     } else {
                         this.finish();
+                        System.exit(0);
                     }
                 }
 

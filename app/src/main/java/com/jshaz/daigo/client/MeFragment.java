@@ -41,10 +41,17 @@ import com.jshaz.daigo.util.User;
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
 
+import java.io.IOException;
 import java.lang.ref.WeakReference;
+import java.text.DecimalFormat;
+import java.text.Format;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
+
+import okhttp3.OkHttpClient;
+import okhttp3.Request;
+import okhttp3.Response;
 
 /**
  * Created by jshaz on 2017/11/21.
@@ -74,6 +81,8 @@ public class MeFragment extends Fragment {
     private ToolBarView toolBarView;
 
     private ProgressDialog progressDialog;
+
+    private String logContent;
 
     private MyHandler handler;
 
@@ -315,6 +324,25 @@ public class MeFragment extends Fragment {
         isUpdate = true;
     }
 
+    private long getContentLength(String downloadUrl) {
+        try {
+            OkHttpClient client = new OkHttpClient();
+            Request request = new Request.Builder()
+                    .url(downloadUrl)
+                    .build();
+            Response response = client.newCall(request).execute();
+            if (response != null && response.isSuccessful()) {
+                long contentLength = response.body().contentLength();
+                response.close();
+                return contentLength;
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+        return 0;
+    }
+
     private static class MyHandler extends Handler {
 
         WeakReference<ClientMainActivity> activityWeakReference;
@@ -372,10 +400,28 @@ public class MeFragment extends Fragment {
 
                     break;
                 case 2:
+                    fragmentWeakReference.get().logContent = (String) msg.obj;
+                    List<NameValuePair> params = new ArrayList<NameValuePair>();
+                    params.add(new BasicNameValuePair("type", "filename"));
+                    Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, MyHandler.this,
+                            4, 1, true);
+                    updateThread.start();
+
+                    break;
+                case 3:
                     response = (String) msg.obj;
+                    //开启下载服务
+                    fragmentWeakReference.get().startDownload(response);
+                    break;
+                case 4:
+                    final String response1 = (String) msg.obj;
+                    long length = fragmentWeakReference.get().getContentLength(ServerUtil.getDownloadUrl(response1));
+                    Format format = new DecimalFormat(".#");
+                    String fileLength = format.format((double) length / (1024 * 1024));
                     AlertDialog.Builder builder = new AlertDialog.Builder(activityWeakReference.get());
                     builder.setTitle("有更新可用");
-                    builder.setMessage(response);
+                    builder.setMessage(fragmentWeakReference.get().logContent + "\n\n更新大小：" +
+                            fileLength + "MB");
                     builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
                         @Override
                         public void onClick(DialogInterface dialog, int which) {
@@ -388,108 +434,19 @@ public class MeFragment extends Fragment {
                                 }
                             });
 
-                            List<NameValuePair> params = new ArrayList<NameValuePair>();
-                            params.add(new BasicNameValuePair("type", "filename"));
-                            Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, MyHandler.this,
-                                    3, 1, true);
-                            updateThread.start();
+                            Message message = obtainMessage();
+                            message.what = 3;
+                            message.obj = response1;
+                            handleMessage(message);
+
                         }
                     });
                     builder.setNegativeButton("取消", null);
                     builder.show();
-                    break;
-                case 3:
-                    response = (String) msg.obj;
-                    //开启下载服务
-                    fragmentWeakReference.get().startDownload(response);
                     break;
             }
         }
     }
 
-    /*
-    @SuppressLint("HandlerLeak")
-    Handler handler = new Handler() {
-        @Override
-        public void handleMessage(Message msg) {
-            try {
-                getActivity().runOnUiThread(new Runnable() {
-                    @Override
-                    public void run() {
-                        stopProgressDialog();
-                    }
-                });
-            } catch (NullPointerException e) {
-                e.printStackTrace();
-            }
 
-            String response = "";
-            switch (msg.what) {
-                case User.USER_RESPONSE:
-                    setLogin();
-                    break;
-                case User.NET_ERROR:
-                    break;
-                case User.USER_WRONG:
-                    setUnLogin();
-                    break;
-                case 0:
-                    response = (String) msg.obj;
-                    if (response.equals("" + AppInfo.getVersionCode(getContext()))) {
-                        Toast.makeText(parentActivity, "当前是最新版本", Toast.LENGTH_SHORT).show();
-                    } else {
-
-                        getActivity().runOnUiThread(new Runnable() {
-                            @Override
-                            public void run() {
-                                startProgressDialog();
-                            }
-                        });
-
-                        List<NameValuePair> params = new ArrayList<NameValuePair>();
-                        params.add(new BasicNameValuePair("type", "logcontent"));
-                        Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, handler,
-                                2, 1);
-                        updateThread.start();
-                    }
-                    break;
-                case 1:
-
-                    break;
-                case 2:
-                    response = (String) msg.obj;
-                    AlertDialog.Builder builder = new AlertDialog.Builder(getContext());
-                    builder.setTitle("有更新可用");
-                    builder.setMessage(response);
-                    builder.setPositiveButton("更新", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            //获取文件名
-
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    startProgressDialog();
-                                }
-                            });
-
-                            List<NameValuePair> params = new ArrayList<NameValuePair>();
-                            params.add(new BasicNameValuePair("type", "filename"));
-                            Thread updateThread = new NetThread(ServerUtil.SLUpdate, params, handler,
-                                    3, 1);
-                            updateThread.start();
-                        }
-                    });
-                    builder.setNegativeButton("取消", null);
-                    builder.show();
-                    break;
-                case 3:
-                    response = (String) msg.obj;
-                    //开启下载服务
-                    startDownload(response);
-                    break;
-            }
-        }
-    };
-    */
 }

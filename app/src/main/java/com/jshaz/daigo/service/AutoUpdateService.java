@@ -69,6 +69,11 @@ public class AutoUpdateService extends Service {
         mContext = this;
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        stopSelf();
+    }
 
     @Nullable
     @Override
@@ -80,13 +85,7 @@ public class AutoUpdateService extends Service {
     public int onStartCommand(Intent intent, int flags, int startId) {
         getCampusCode(this);
         detectOrderUpdate();
-//        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-//        int time = 2000; //每2秒自动更新一次
-//        long triggerAtTime = SystemClock.elapsedRealtime() + time;
-//        Intent sIntent = new Intent(this, AutoUpdateService.class);
-//        PendingIntent pi = PendingIntent.getService(this, 0, sIntent, 0);
-//        alarmManager.cancel(pi);
-//        alarmManager.set(AlarmManager.ELAPSED_REALTIME_WAKEUP, triggerAtTime, pi);
+
         return super.onStartCommand(intent, flags, startId);
     }
 
@@ -119,8 +118,7 @@ public class AutoUpdateService extends Service {
      */
     private void detectOrderUpdate() {
         getLatestOrderId();
-        if (detectThread == null) {
-            detectThread = new Thread(new Runnable() {
+        new Thread(new Runnable() {
                 @Override
                 public void run() {
                     String response = "";
@@ -174,12 +172,9 @@ public class AutoUpdateService extends Service {
                     }
 
                 }
-            });
+            }).start();
         }
 
-            detectThread.start();
-
-    }
 
 
 }

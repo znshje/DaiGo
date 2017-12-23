@@ -140,6 +140,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
         reportReceiver = (TextView) findViewById(R.id.order_detail_report_receiver);
 
         reportReceiver.setOnClickListener(this);
+        receiverCardView.setOnClickListener(this);
 
 
         setSlideExit(false);
@@ -223,6 +224,17 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                 Intent intent = new Intent(this, ComplainActivity.class);
                 intent.putExtra("order_id", orderId);
                 startActivity(intent);
+                break;
+            case R.id.receiver_cardview:
+                if (order.getOrderState() != Order.RECEIVED) {
+                    Toast.makeText(this, "订单已完成，无法查看", Toast.LENGTH_SHORT).show();
+                } else {
+                    Intent intent1 = new Intent(OrderDetailActivity.this, SeeLocationActivity.class);
+//                    Intent intent1 = new Intent(OrderDetailActivity.this, AMapLocationActivity.class);
+                    intent1.putExtra("userid", order.getOrderReceiver().getUserId());
+                    intent1.putExtra("headicon", order.getOrderReceiver().getHeadIcon());
+                    startActivity(intent1);
+                }
                 break;
         }
     }
@@ -385,13 +397,6 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
         completeOrder.setVisibility(GONE);
         privateContent.setText(order.getPrivateDetails());
         contact.setText(order.getContact());
-
-//        if (!cancelOrder.isEnabled()) {
-//            cancelOrder.setVisibility(GONE);
-//            completeOrder.setVisibility(View.VISIBLE);
-//        } else {
-//            completeOrder.setVisibility(GONE);
-//        }
 
     }
 

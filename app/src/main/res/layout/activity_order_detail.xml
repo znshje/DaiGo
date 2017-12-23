@@ -83,7 +83,9 @@
                 app:cardCornerRadius="2dp"
                 app:cardElevation="2dp"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content">
+                android:layout_height="wrap_content"
+                android:clickable="true"
+                android:foreground="?attr/selectableItemBackground">
 
                 <LinearLayout
                     android:orientation="vertical"
@@ -101,7 +103,7 @@
                             android:textColor="@color/colorPrimaryDark"
                             android:layout_marginTop="10dp"
                             android:layout_marginLeft="10dp"
-                            android:text="接单人"/>
+                            android:text="接单人（点击查看位置）"/>
                         <TextView
                             android:id="@+id/order_detail_report_receiver"
                             android:layout_width="wrap_content"
