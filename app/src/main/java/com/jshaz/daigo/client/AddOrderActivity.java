@@ -228,8 +228,17 @@ public class AddOrderActivity extends BaseActivity {
                     Toast.makeText(AddOrderActivity.this, "有内容未填写", Toast.LENGTH_SHORT).show();
                     price.requestFocus();
                 } else {
-                    startSubmissionDialog();
-                    getNetTime();
+                    AlertDialog.Builder builder = new AlertDialog.Builder(AddOrderActivity.this);
+                    builder.setMessage("请确认所填写信息正确无误，如因信息出错导致的后果请自负");
+                    builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            startSubmissionDialog();
+                            getNetTime();
+                        }
+                    });
+                    builder.setNegativeButton("返回修改", null);
+                    builder.show();
                 }
             }
         });

@@ -315,7 +315,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         navigationView.buttonLeftSetListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toolBarView.setTitleText("订单");
+                toolBarView.setTitleText(getResources().getString(R.string.orders));
                 navigationView.setBtnLeftDown();
                 if (curFragment != 0) {
                     curFragment = 0;
@@ -328,7 +328,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
             }
         });
 
-        //调试修改个人资料模块，记得删除注释
+        
         /*导航栏中按钮的监听事件*/
         navigationView.buttonMiddleSetListener(new View.OnClickListener() {
             @Override

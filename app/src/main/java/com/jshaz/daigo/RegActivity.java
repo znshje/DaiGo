@@ -226,7 +226,9 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
      * 显示正在验证对话框
      */
     private void startVerifyUIDialog() {
-        verDialog = new ProgressDialog(this);
+        if (verDialog == null) {
+            verDialog = new ProgressDialog(this);
+        }
         verDialog.setCancelable(false);
         verDialog.setCanceledOnTouchOutside(false);
         verDialog.setMessage("正在验证...");
@@ -238,7 +240,9 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
      * 显示正在注册对话框
      */
     private void startRegUIDialog() {
-        regDialog = new ProgressDialog(this);
+        if (regDialog == null) {
+            regDialog = new ProgressDialog(this);
+        }
         regDialog.setCancelable(false);
         regDialog.setCanceledOnTouchOutside(false);
         regDialog.setMessage("正在注册...");
@@ -420,9 +424,19 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
                     String response = (String) msg.obj;
                     if (response.equals("")) {
                         Toast.makeText(activity,"连接超时",Toast.LENGTH_SHORT).show();
-                        activity.stopUIDialog();
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.stopUIDialog();
+                            }
+                        });
                     } else {
-                        activity.stopUIDialog();
+                        activity.runOnUiThread(new Runnable() {
+                            @Override
+                            public void run() {
+                                activity.stopUIDialog();
+                            }
+                        });
                         if (response.equals("false")) {
                             Toast.makeText(activity, "手机号已被注册", Toast.LENGTH_SHORT).show();
                         } else {
@@ -434,7 +448,12 @@ public class RegActivity extends BaseActivity implements View.OnClickListener {
                     break;
                 case 1:
                     Toast.makeText(activity,"连接超时",Toast.LENGTH_SHORT).show();
-                    activity.stopUIDialog();
+                    activity.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            activity.stopUIDialog();
+                        }
+                    });
                     break;
             }
         }

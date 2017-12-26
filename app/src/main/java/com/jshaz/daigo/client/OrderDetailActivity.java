@@ -210,7 +210,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
                 break;
             case R.id.order_detail_complete_order:
                 builder = new AlertDialog.Builder(this);
-                builder.setMessage("请确认配送完毕，并请发单人当面查验货物。");
+                builder.setMessage("请确认配送完毕，并当面查验货物。");
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
@@ -327,6 +327,8 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
         if (order.getOrderReceiver().getUserId() != null &&
                 !order.getOrderReceiver().getUserId().equals("null") &&
                 !order.getOrderReceiver().getUserId().equals("")) {
+            //正在配送状态
+            ////////
             receiverCardView.setVisibility(View.VISIBLE);
             receiverHead.setImageBitmap(Utility.convertStringToBitmap(
                     order.getOrderReceiver().getHeadIcon()));
@@ -355,18 +357,18 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
             setOtherView();
         }
 
-        if (order.getOrderState() == Order.INVALIDATE) {
+        if (order.getOrderState() == Order.INVALIDATE || order.getOrderState() == Order.COMPLETE) {
             //如果取消了订单就隐藏所有按钮
             cancelOrder.setVisibility(GONE);
             completeOrder.setVisibility(GONE);
             acceptOrder.setVisibility(GONE);
         }
-        if (order.getOrderState() == Order.COMPLETE) {
-            //如果完成了订单就隐藏所有按钮
-            cancelOrder.setVisibility(GONE);
-            completeOrder.setVisibility(GONE);
-            acceptOrder.setVisibility(GONE);
-        }
+//        if (order.getOrderState() == Order.COMPLETE) {
+//            //如果完成了订单就隐藏所有按钮
+//            cancelOrder.setVisibility(GONE);
+//            completeOrder.setVisibility(GONE);
+//            acceptOrder.setVisibility(GONE);
+//        }
     }
 
     /**
@@ -376,7 +378,7 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
         privateContent.setText(order.getPrivateDetails());
         cancelOrder.setVisibility(GONE);
         acceptOrder.setVisibility(GONE);
-        completeOrder.setVisibility(View.VISIBLE);
+        completeOrder.setVisibility(View.GONE);
 //        acceptOrder.setText("您已接单。请尽快完成配送。");
 //        acceptOrder.setEnabled(false);
         reportReceiver.setVisibility(View.INVISIBLE);
@@ -388,13 +390,14 @@ public class OrderDetailActivity extends BaseActivity implements View.OnClickLis
      */
     private void setSenderView() {
         cancelOrder.setVisibility(View.VISIBLE);
+        completeOrder.setVisibility(View.GONE);
         if (order.getOrderState() == Order.RECEIVED) {
             cancelOrder.setEnabled(false);
             cancelOrder.setText("正在配送，无法取消订单");
+            cancelOrder.setVisibility(GONE);
+            completeOrder.setVisibility(View.VISIBLE);
         }
-
         acceptOrder.setVisibility(GONE);
-        completeOrder.setVisibility(GONE);
         privateContent.setText(order.getPrivateDetails());
         contact.setText(order.getContact());
 

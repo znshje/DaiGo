@@ -137,7 +137,7 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
         try{
             dbHelper = new UserDatabaseHelper(mContext, userId + ".db", null, 1);
         } catch (Exception e) {
-            e.printStackTrace();
+            //e.printStackTrace();
         }
 
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -166,10 +166,22 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
 
     @Override
     public void writeToLocalSharedPref() {
+        /*
         SharedPreferences.Editor editor = mContext.
                 getSharedPreferences("user_cache", Context.MODE_PRIVATE).edit();
         editor.putString("user_id", userId);
         editor.apply();
+        */
+        dbHelper = new UserDatabaseHelper(mContext, "usercache.db", null, 1);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL("drop table if exists usercache");
+        db.execSQL("create table usercache(" +
+                "userid text)");
+        ContentValues values = new ContentValues();
+        values.put("userid", userId);
+        db.insert("usercache", null, values);
+        db.close();
+        dbHelper.close();
     }
 
     @Override
@@ -218,14 +230,22 @@ public class User extends DataSupport implements BaseClassImpl, Serializable {
 
     @Override
     public void readFromLocalSharedPref() {
+        /*
         SharedPreferences preferences = mContext.
                 getSharedPreferences("user_cache", Context.MODE_PRIVATE);
-
-        if (!preferences.getString("user_id","").equals("")) {
-            this.userId = preferences.getString("user_id","");
+       */
+        dbHelper = new UserDatabaseHelper(mContext, "usercache.db", null, 1);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+        db.execSQL("create table if not exists usercache(userid text)");
+        Cursor cursor = db.query("usercache", null, null,
+                null, null, null, null);
+        if (cursor.moveToFirst()) {
+            this.userId = cursor.getString(cursor.getColumnIndex("userid"));
         } else {
             setNullValue();
         }
+        db.close();
+        dbHelper.close();
     }
 
     @Override

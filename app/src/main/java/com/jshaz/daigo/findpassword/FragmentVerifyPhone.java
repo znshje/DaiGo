@@ -156,7 +156,9 @@ public class FragmentVerifyPhone extends Fragment implements View.OnClickListene
      * 开启正在验证对话框
      */
     private void startVerifyUIDialog() {
-        verDialog = new ProgressDialog(getContext());
+        if (verDialog == null) {
+            verDialog = new ProgressDialog(getContext());
+        }
         verDialog.setMessage("正在验证...");
         verDialog.setTitle("找回密码");
         verDialog.setCancelable(false);

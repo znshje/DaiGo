@@ -6,11 +6,13 @@ import android.app.AlertDialog;
 import android.app.Dialog;
 import android.app.ProgressDialog;
 import android.content.ComponentName;
+import android.content.ContentValues;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
+import android.database.sqlite.SQLiteDatabase;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -37,6 +39,7 @@ import com.jshaz.daigo.util.AppInfo;
 import com.jshaz.daigo.util.NetThread;
 import com.jshaz.daigo.util.Setting;
 import com.jshaz.daigo.util.User;
+import com.jshaz.daigo.util.UserDatabaseHelper;
 
 import org.apache.http.NameValuePair;
 import org.apache.http.message.BasicNameValuePair;
@@ -229,10 +232,22 @@ public class MeFragment extends Fragment {
                 builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialogInterface, int i) {
+                        UserDatabaseHelper dbHelper = new UserDatabaseHelper(getContext(), "usercache.db", null, 1);
+                        SQLiteDatabase db = dbHelper.getWritableDatabase();
+                        db.execSQL("drop table if exists usercache");
+                        db.execSQL("create table usercache(" +
+                                "userid text)");
+                        ContentValues values = new ContentValues();
+                        values.put("userid", "");
+                        db.insert("usercache", null, values);
+                        db.close();
+                        dbHelper.close();
+                        /*
                         SharedPreferences.Editor editor = getContext().
                                 getSharedPreferences("user_cache", Context.MODE_PRIVATE).edit();
                         editor.putString("user_id", "");
                         editor.apply();
+                        */
                         startActivity(new Intent(getContext(), ClientMainActivity.class));
                         parentActivity.finish();
                     }

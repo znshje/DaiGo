@@ -228,6 +228,7 @@ public class SeeLocationActivity extends BaseActivity {
                         activity.centP = point;
                         activity.baiduMap.setMapStatus(MapStatusUpdateFactory.newLatLng(activity.centP));
                     }
+                    activity.initHeadBitmap();
                     OverlayOptions options = new MarkerOptions().position(point).icon(activity.bitmapDescriptor);
                     activity.baiduMap.clear();
                     activity.baiduMap.addOverlay(options);

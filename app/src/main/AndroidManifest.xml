@@ -33,11 +33,7 @@
         <meta-data
             android:name="com.baidu.lbsapi.API_KEY"
             android:value="EahpEQuzjwy1bF9WjqjVm47h57mv8EsH" />
-        <meta-data
-            android:name="com.amap.api.v2.apikey"
-            android:value="1c95fbe49be044cfe067ba7033374724" />
 
-        <service android:name="com.amap.api.location.APSService" />
         <service
             android:name="com.baidu.location.f"
             android:enabled="true"
@@ -85,16 +81,7 @@
         <activity
             android:name=".FindPasswordActivity"
             android:screenOrientation="portrait" />
-        <activity
-            android:name="com.alipay.sdk.app.H5PayActivity"
-            android:configChanges="orientation|keyboardHidden|navigation"
-            android:exported="false"
-            android:screenOrientation="behind" />
-        <activity
-            android:name="com.alipay.sdk.auth.AuthActivity"
-            android:configChanges="orientation|keyboardHidden|navigation"
-            android:exported="false"
-            android:screenOrientation="behind" />
+
         <activity
             android:name=".client.AddOrderActivity"
             android:screenOrientation="portrait" />
@@ -160,8 +147,8 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".client.SeeLocationActivity" />
-        <activity android:name=".client.AMapLocationActivity"></activity>
+        <activity android:name=".client.SeeLocationActivity"
+            android:screenOrientation="portrait"/>
     </application>
 
 </manifest>

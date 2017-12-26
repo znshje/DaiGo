@@ -415,7 +415,7 @@
                 style="?borderlessButtonStyle"
                 android:background="@drawable/button_bg"
                 android:textColor="@color/colorWhitePrimary"
-                android:text="完成配送"/>
+                android:text="确认收货"/>
         </LinearLayout>
     </ScrollView>
 

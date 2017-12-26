@@ -206,11 +206,12 @@ public class LoginActivity extends BaseActivity {
     private void LoginMoudle(String response) {
         Toast.makeText(this, "登录成功", Toast.LENGTH_SHORT).show();
         startActivity(new Intent(LoginActivity.this, ClientMainActivity.class));
-        SharedPreferences.Editor editor = getSharedPreferences("user_cache", MODE_PRIVATE).edit();
-        editor.putString("user_id",response);
+        //SharedPreferences.Editor editor = getSharedPreferences("user_cache", MODE_PRIVATE).edit();
+        //editor.putString("user_id",response);
         user.setUserId(response);
         user.writeToLocalDatabase();
-        editor.apply();
+        user.writeToLocalSharedPref();
+        //editor.apply();
         finish();
     }
 
