@@ -315,7 +315,7 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         navigationView.buttonLeftSetListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                toolBarView.setTitleText(getResources().getString(R.string.orders));
+                toolBarView.setTitleText("订单");
                 navigationView.setBtnLeftDown();
                 if (curFragment != 0) {
                     curFragment = 0;
