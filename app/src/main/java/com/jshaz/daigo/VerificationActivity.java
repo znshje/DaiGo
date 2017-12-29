@@ -117,6 +117,12 @@ public class VerificationActivity extends BaseActivity {
 
         toolBarView.setBackButtonVisible(true);
         toolBarView.setBackButtonImage(R.mipmap.icon_back);
+        toolBarView.setBackButtonOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finish();
+            }
+        });
         toolBarView.setTitleCampusVisible(false);
         toolBarView.setTitleText("身份认证");
 
