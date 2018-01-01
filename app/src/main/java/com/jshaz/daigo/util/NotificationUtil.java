@@ -59,7 +59,7 @@ public class NotificationUtil extends ContextWrapper {
             Notification.Builder builder = new Notification.Builder(getApplicationContext(), nId);
             builder.setContentTitle(title);
             builder.setContentText(content);
-            builder.setSmallIcon(R.mipmap.icon_house);
+            builder.setSmallIcon(R.drawable.ic_stat_kangaroo);
             return builder;
         }
         return null;
@@ -69,7 +69,7 @@ public class NotificationUtil extends ContextWrapper {
         NotificationCompat.Builder builder = new NotificationCompat.Builder(
                 getApplicationContext());
         builder.setContentTitle(title);
-        builder.setSmallIcon(R.mipmap.icon_house);
+        builder.setSmallIcon(R.drawable.ic_stat_kangaroo);
         if (progress > 0) {
             builder.setContentText(progress + "%");
             builder.setProgress(100, progress, false);
@@ -82,7 +82,7 @@ public class NotificationUtil extends ContextWrapper {
                 getApplicationContext());
         builder.setContentText(content);
         builder.setContentTitle(title);
-        builder.setSmallIcon(R.mipmap.icon_house);
+        builder.setSmallIcon(R.drawable.ic_stat_kangaroo);
         return builder;
     }
 
