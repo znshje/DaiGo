@@ -107,11 +107,6 @@ public class AutoUpdateService extends Service {
         campusCode = setting.getCampusCode();
     }
 
-    private void prepareThread() {
-        List<NameValuePair> params = new ArrayList<NameValuePair>();
-        params.add(new BasicNameValuePair("campusid", "" + campusCode));
-
-    }
 
     /**
      * 检测订单是否更新

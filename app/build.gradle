@@ -13,8 +13,8 @@ android {
         applicationId "com.jshaz.daigo"
         minSdkVersion 15
         targetSdkVersion 26
-        versionCode 3
-        versionName "1.2_alpha"
+        versionCode 4
+        versionName "1.3_alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
     }
     buildTypes {

@@ -6,6 +6,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.content.Context;
 import android.content.ContextWrapper;
+import android.graphics.BitmapFactory;
 import android.os.Build;
 import android.support.v4.app.NotificationCompat;
 
@@ -16,6 +17,8 @@ import com.jshaz.daigo.R;
  */
 
 public class NotificationUtil extends ContextWrapper {
+
+    public static int NotificationID = 0;
 
     private NotificationManager manager;
     public static final String nId = "download_channel";
@@ -44,7 +47,7 @@ public class NotificationUtil extends ContextWrapper {
         if (Build.VERSION.SDK_INT >= 26) {
             Notification.Builder builder = new Notification.Builder(getApplicationContext(), nId);
             builder.setContentTitle(title);
-            builder.setSmallIcon(R.mipmap.icon_house);
+            builder.setSmallIcon(R.drawable.ic_stat_kangaroo);
             if (progress > 0) {
                 builder.setContentText(progress + "%");
                 builder.setProgress(100, progress, false);
@@ -60,6 +63,9 @@ public class NotificationUtil extends ContextWrapper {
             builder.setContentTitle(title);
             builder.setContentText(content);
             builder.setSmallIcon(R.drawable.ic_stat_kangaroo);
+            builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+            builder.setAutoCancel(true);
+            builder.setPriority(Notification.PRIORITY_MAX);
             return builder;
         }
         return null;
@@ -83,6 +89,8 @@ public class NotificationUtil extends ContextWrapper {
         builder.setContentText(content);
         builder.setContentTitle(title);
         builder.setSmallIcon(R.drawable.ic_stat_kangaroo);
+        builder.setLargeIcon(BitmapFactory.decodeResource(getResources(), R.mipmap.ic_launcher));
+        builder.setAutoCancel(true);
         return builder;
     }
 
@@ -91,10 +99,10 @@ public class NotificationUtil extends ContextWrapper {
             createNotificationChannel();
             Notification notification = getChannelNotification(title, progress)
                     .build();
-            getManager().notify(1, notification);
+            getManager().notify(-1, notification);
         } else {
             Notification notification = getNotificationBuilder(title, progress).build();
-            getManager().notify(1, notification);
+            getManager().notify(-1, notification);
         }
     }
 
@@ -103,10 +111,10 @@ public class NotificationUtil extends ContextWrapper {
             createNotificationChannel();
             Notification notification = getChannelNotification(title, content)
                     .build();
-            getManager().notify(1, notification);
+            getManager().notify(NotificationID++, notification);
         } else {
             Notification notification = getNotificationBuilder(title, content).build();
-            getManager().notify(1, notification);
+            getManager().notify(NotificationID++, notification);
         }
     }
 

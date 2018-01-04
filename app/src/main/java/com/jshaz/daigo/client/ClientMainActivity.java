@@ -44,6 +44,7 @@ import com.jshaz.daigo.intents.UserIntent;
 import com.jshaz.daigo.serverutil.ServerUtil;
 import com.jshaz.daigo.service.AutoUpdateService;
 import com.jshaz.daigo.service.DownloadService;
+import com.jshaz.daigo.service.InstantOrderInfoService;
 import com.jshaz.daigo.service.LocationService;
 import com.jshaz.daigo.ui.MyApplication;
 import com.jshaz.daigo.ui.NavigationView;
@@ -151,6 +152,8 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         startAutoUpdateService();
 
         startLocationService();
+
+        startInstantOrderService();
 
         /**
          * need Debug
@@ -517,6 +520,11 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         startService(intent);
     }
 
+    private void startInstantOrderService() {
+        Intent intent = new Intent(ClientMainActivity.this, InstantOrderInfoService.class);
+        startService(intent);
+    }
+
 
     /**
      * 从服务器端获取用户数据
@@ -550,7 +558,6 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
         Intent intent = new Intent(this, DownloadService.class);
         startService(intent);
         getApplicationContext().bindService(intent, connection, BIND_AUTO_CREATE);
-
     }
 
     /**
@@ -746,6 +753,10 @@ public class ClientMainActivity extends BaseActivity implements View.OnClickList
                     if (!response.equals("" + AppInfo.getVersionCode(
                             activityWeakReference.get()))) {
                         activityWeakReference.get().meFragment.setUpdate();
+                    } else {
+                        Intent intent = new Intent(activityWeakReference.get()
+                                , DownloadService.class);
+                        activityWeakReference.get().stopService(intent);
                     }
                     break;
             }

@@ -81,7 +81,6 @@
         <activity
             android:name=".FindPasswordActivity"
             android:screenOrientation="portrait" />
-
         <activity
             android:name=".client.AddOrderActivity"
             android:screenOrientation="portrait" />
@@ -147,8 +146,14 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".client.SeeLocationActivity"
-            android:screenOrientation="portrait"/>
+        <activity
+            android:name=".client.SeeLocationActivity"
+            android:screenOrientation="portrait" />
+
+        <service
+            android:name=".service.InstantOrderInfoService"
+            android:enabled="true"
+            android:exported="true"></service>
     </application>
 
 </manifest>
