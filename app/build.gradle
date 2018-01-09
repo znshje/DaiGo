@@ -16,11 +16,30 @@ android {
         versionCode 4
         versionName "1.3_alpha"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
+
     }
     buildTypes {
         release {
             minifyEnabled false
             proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+//            proguardFiles 'proguard-rules.pro'
+            // 不显示log
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            // Zipalign优化
+            zipAlignEnabled true
+            // 移除无用的resource
+//            shrinkResources true
+
+//            multiDexEnabled true
+        }
+        debug {
+            buildConfigField "boolean", "LOG_DEBUG", "true"
+            // VersionName后缀
+            versionNameSuffix "-debug"
+            minifyEnabled false
+            zipAlignEnabled false
+            shrinkResources false
+
         }
     }
     useLibrary 'org.apache.http.legacy'
@@ -53,6 +72,7 @@ dependencies {
     androidTestImplementation 'com.android.support.test:runner:1.0.1'
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.1'
 }
+
 
 
 

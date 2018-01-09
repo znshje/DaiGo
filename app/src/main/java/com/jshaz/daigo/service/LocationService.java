@@ -184,7 +184,7 @@ public class LocationService extends Service {
                 params.add(new BasicNameValuePair("userid", userId));
 
                 //服务器地址，指向Servlet
-                HttpPost httpPost = new HttpPost(ServerUtil.SLLocation);
+                HttpPost httpPost = new HttpPost(ServerUtil.SLUpdateLocation);
 
                 final UrlEncodedFormEntity entity = new UrlEncodedFormEntity(params, "utf-8");//以UTF-8格式发送
                 httpPost.setEntity(entity);

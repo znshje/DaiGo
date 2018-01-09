@@ -2,6 +2,7 @@ package com.jshaz.daigo;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.v7.widget.CardView;
 import android.view.View;
 import android.widget.Toast;
@@ -31,16 +32,26 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
         campusSetting.readFromLocalSharedPref();
 
         if (campusSetting.getCampusCode() != -1) {
-            Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
-            startActivity(intent);
-            this.finish();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
+                    startActivity(intent);
+                    MainActivity.this.finish();
+                }
+            }, 1000);
         } else {
             campusSetting.setCampusCode(0);
             campusSetting.writeToLocalSharedPref();
-            Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
-            intent.putExtra("first_start", true);
-            startActivity(intent);
-            this.finish();
+            new Handler().postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
+                    intent.putExtra("first_start", true);
+                    startActivity(intent);
+                    MainActivity.this.finish();
+                }
+            }, 1000);
         }
 
         /*

@@ -18,42 +18,42 @@ public class Setting implements BaseClassImpl {
      * 校区设置
      */
     public static final int CAMPUS_ZHONGXIN = 0;
-    public static final int CARDVIEW_ZHONGXIN = R.id.select_campus_zhongxin;
+//    public static final int CARDVIEW_ZHONGXIN = R.id.select_campus_zhongxin;
     public static final int BACKGROUND_BIG_ZHONGXIN = R.drawable.zhongxin_big;
     public static final int NAV_MENU_ZHONGXIN = R.id.nav_menu_zhongxin;
 
     public static final int CAMPUS_RUANJIANYUAN = 1;
-    public static final int CARDVIEW_RUANJIANYUAN = R.id.select_campus_ruanjianyuan;
+//    public static final int CARDVIEW_RUANJIANYUAN = R.id.select_campus_ruanjianyuan;
     public static final int BACKGROUND_BIG_RUANJIANYUAN = R.drawable.ruanjianyuan_big;
     public static final int NAV_MENU_RUANJIANYUAN = R.id.nav_menu_ruanjianyuan;
 
     public static final int CAMPUS_HONGJIALOU = 2;
-    public static final int CARDVIEW_HONGJIALOU = R.id.select_campus_hongjialou;
+//    public static final int CARDVIEW_HONGJIALOU = R.id.select_campus_hongjialou;
     public static final int BACKGROUND_BIG_HONGJIALOU = R.drawable.hongjialou_big;
     public static final int NAV_MENU_HONGJIALOU = R.id.nav_menu_hongjialou;
 
     public static final int CAMPUS_BAOTUQUAN = 3;
-    public static final int CARDVIEW_BAOTUQUAN = R.id.select_campus_baotuquan;
+//    public static final int CARDVIEW_BAOTUQUAN = R.id.select_campus_baotuquan;
     public static final int BACKGROUND_BIG_BAOTUQUAN = R.drawable.baotuquan_big;
     public static final int NAV_MENU_BAOTUQUAN = R.id.nav_menu_baotuquan;
 
     public static final int CAMPUS_XINGLONGSHAN = 4;
-    public static final int CARDVIEW_XINGLONGSHAN = R.id.select_campus_xinglongshan;
+//    public static final int CARDVIEW_XINGLONGSHAN = R.id.select_campus_xinglongshan;
     public static final int BACKGROUND_BIG_XINGLONGSHAN = R.drawable.xinglongshan_big;
     public static final int NAV_MENU_XINGLONGSHAN = R.id.nav_menu_xinglongshan;
 
     public static final int CAMPUS_QIANFOSHAN = 5;
-    public static final int CARDVIEW_QIANFOSHAN = R.id.select_campus_qianfoshan;
+//    public static final int CARDVIEW_QIANFOSHAN = R.id.select_campus_qianfoshan;
     public static final int BACKGROUND_BIG_QIANFOSHAN = R.drawable.qianfoshan_big;
     public static final int NAV_MENU_QIANFOSHAN = R.id.nav_menu_qianfoshan;
 
     public static final int CAMPUS_QINGDAO = 6;
-    public static final int CARDVIEW_QINGDAO = R.id.select_campus_qingdao;
+//    public static final int CARDVIEW_QINGDAO = R.id.select_campus_qingdao;
     public static final int BACKGROUND_BIG_QINGDAO = R.drawable.qingdao_big;
     public static final int NAV_MENU_QINGDAO = R.id.nav_menu_qingdao;
 
     public static final int CAMPUS_WEIHAI = 7;
-    public static final int CARDVIEW_WEIHAI = R.id.select_campus_weihai;
+//    public static final int CARDVIEW_WEIHAI = R.id.select_campus_weihai;
     public static final int BACKGROUND_BIG_WEIHAI = R.drawable.weihai_big;
     public static final int NAV_MENU_WEIHAI = R.id.nav_menu_weihai;
 
@@ -73,7 +73,7 @@ public class Setting implements BaseClassImpl {
     public static String getCampusName(int campusCode) {
         return CAMPUS_NAME[campusCode];
     }
-
+/**
     public static int getCardViewId(int campusCode) {
         switch (campusCode) {
             case CAMPUS_ZHONGXIN:
@@ -96,7 +96,7 @@ public class Setting implements BaseClassImpl {
                 return CARDVIEW_ZHONGXIN;
         }
     }
-
+*/
     public static int getBackgroundId(int campusCode) {
         switch (campusCode) {
             case CAMPUS_ZHONGXIN:
