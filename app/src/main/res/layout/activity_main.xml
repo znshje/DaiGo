@@ -281,21 +281,28 @@
     -->
 
 
-    <ImageView
-        android:id="@+id/logo"
-        android:layout_width="180dp"
-        android:layout_height="180dp"
-        app:srcCompat="@drawable/startup_kangaroo"
-        android:layout_centerInParent="true"/>
-
-    <TextView
+    <LinearLayout
+        android:orientation="vertical"
+        android:layout_centerInParent="true"
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="代Go"
-        android:layout_centerHorizontal="true"
-        android:layout_alignParentBottom="true"
-        android:layout_marginBottom="80dp"
-        android:textSize="30sp"
-        android:textColor="@color/colorBlackPrimary"
-        android:layout_marginTop="25dp"/>
+        android:layout_height="wrap_content">
+
+        <ImageView
+            android:id="@+id/logo"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            app:srcCompat="@drawable/startup_kangaroo"
+            android:layout_gravity="center_horizontal"/>
+
+        <TextView
+            android:id="@+id/textView"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="@string/app_name"
+            android:textColor="@color/colorBlackPrimary"
+            android:textSize="30sp"
+            android:layout_marginTop="30dp"
+            android:layout_gravity="center_horizontal"/>
+    </LinearLayout>
+
 </RelativeLayout>

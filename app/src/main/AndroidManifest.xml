@@ -155,7 +155,6 @@
             android:enabled="true"
             android:exported="true" />
 
-        <activity android:name=".Main2Activity"></activity>
     </application>
 
 </manifest>
