@@ -54,74 +54,9 @@ public class MainActivity extends BaseActivity implements View.OnClickListener {
             }, 1000);
         }
 
-        /*
-        for (int i = 0; i < 8; i++) {
-            cardViews[i] = (ExtendedCardView) findViewById(Setting.getCardViewId(i));
-            cardViews[i].setCampusBg(i);
-            cardViews[i].setCampusName(i);
-            cardViews[i].setOnClickListener(this);
-        }
-*/
 
     }
 
-    /*
-    @Override
-    public void onClick(View view) {
-        Intent intent = new Intent(MainActivity.this, ClientMainActivity.class);
-        switch (view.getId()) {
-            case Setting.CARDVIEW_ZHONGXIN:
-                campusSetting.setCampusCode(Setting.CAMPUS_ZHONGXIN);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-            case Setting.CARDVIEW_RUANJIANYUAN:
-                campusSetting.setCampusCode(Setting.CAMPUS_RUANJIANYUAN);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-            case Setting.CARDVIEW_HONGJIALOU:
-                campusSetting.setCampusCode(Setting.CAMPUS_HONGJIALOU);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-            case Setting.CARDVIEW_BAOTUQUAN:
-                campusSetting.setCampusCode(Setting.CAMPUS_BAOTUQUAN);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-            case Setting.CARDVIEW_XINGLONGSHAN:
-                campusSetting.setCampusCode(Setting.CAMPUS_XINGLONGSHAN);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-            case Setting.CARDVIEW_QIANFOSHAN:
-                campusSetting.setCampusCode(Setting.CAMPUS_QIANFOSHAN);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-            case Setting.CARDVIEW_QINGDAO:
-                campusSetting.setCampusCode(Setting.CAMPUS_QINGDAO);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-            case Setting.CARDVIEW_WEIHAI:
-                campusSetting.setCampusCode(Setting.CAMPUS_WEIHAI);
-                campusSetting.writeToLocalSharedPref();
-                startActivity(intent);
-                this.finish();
-                break;
-        }
-
-    }
-*/
 
     @Override
     public void onClick(View v) {
